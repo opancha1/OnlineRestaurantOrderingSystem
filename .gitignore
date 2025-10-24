@@ -71,4 +71,4 @@ htmlcov/
 # --- Local Development ---
 *.local
 *.bak
-*.swp# Python / FastAPI gitignore
+*.swp
