@@ -6,6 +6,3 @@ class conf:
     db_password = "University@14"
     app_host = "localhost"
     app_port = 8000
-
-
-SQLALCHEMY_DATABASE_URL = "sqlite:///./restaurant.db"
