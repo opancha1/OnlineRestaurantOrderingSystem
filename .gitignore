@@ -1,2 +1,74 @@
+# ================================================
+# Python / FastAPI Project .gitignore
+# ================================================
+
+# --- Virtual Environment ---
 .venv/
-.venv/
+venv/
+ENV/
+env/
+
+# --- Python Cache & Compiled Files ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Build / Distribution / Packaging ---
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+parts/
+sdist/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# --- IDE / Editor Files ---
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# --- System Files ---
+.DS_Store
+Thumbs.db
+
+# --- Logs & Runtime ---
+*.log
+*.pot
+*.mo
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+*.db-journal
+instance/
+.env
+.env.*
+
+# --- FastAPI / Uvicorn ---
+*.pid
+*.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+.pyre/
+.pytype/
+.cache/
+
+# --- Jupyter / Notebooks ---
+.ipynb_checkpoints/
+
+# --- Local Development ---
+*.local
+*.bak
+*.swp# Python / FastAPI gitignore
