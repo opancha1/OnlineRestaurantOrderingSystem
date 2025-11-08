@@ -5,6 +5,10 @@ from . import user, order, order_detail, menu_item, resource, payment, review, p
 from ..dependencies.database import engine
 
 
+def create_tables():
+    Base.metadata.create_all(bind=engine)
+
+
 def index():
     orders.Base.metadata.create_all(engine)
     order_details.Base.metadata.create_all(engine)

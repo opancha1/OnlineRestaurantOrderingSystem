@@ -5,6 +5,7 @@ from .routers import index as indexRoute
 from .models import model_loader
 from .dependencies.config import conf
 
+from .models.model_loader import create_tables
 
 app = FastAPI()
 
@@ -17,6 +18,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+def on_startup():
+    create_tables()
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
 
 model_loader.index()
 indexRoute.load_routes(app)
