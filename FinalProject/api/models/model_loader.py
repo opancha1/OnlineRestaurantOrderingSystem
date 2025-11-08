@@ -1,4 +1,6 @@
 from . import orders, order_details, recipes, sandwiches, resources
+from ..dependencies.database import Base, engine
+from . import user, order, order_detail, menu_item, resource, payment, review, promotion
 
 from ..dependencies.database import engine
 
