@@ -7,6 +7,7 @@ from ..dependencies.database import engine
 
 def create_tables():
     Base.metadata.create_all(bind=engine)
+    return gando
 
 
 def index():
