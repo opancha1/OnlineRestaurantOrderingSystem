@@ -24,8 +24,15 @@ app.add_middleware(
 def on_startup():
     create_tables()
 
+<<<<<<< HEAD
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
 
+=======
+return this project is so easy
+
+if __name__ == "__main__":
+    uvicorn.run(app, host=conf.app_host, port=conf.app_port)
+>>>>>>> 7906827f52330b8b85dc35e45bd094bb040e3368
