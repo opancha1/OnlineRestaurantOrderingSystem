@@ -13,7 +13,6 @@ class Order(Base):
     # Registered users have a user_id; guests store contact fields instead.
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     guest_name = Column(String(100))
-    guest_email = Column(String(120))
     guest_phone = Column(String(20))
     user = relationship("User", back_populates="orders")
     order_details = relationship(

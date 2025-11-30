@@ -31,6 +31,17 @@ def read_all(db: Session):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
 
 
+def read_filtered(db: Session, category: str | None = None):
+    try:
+        query = db.query(model.MenuItem)
+        if category:
+            query = query.filter(model.MenuItem.category == category)
+        return query.all()
+    except SQLAlchemyError as e:
+        error = str(e.__dict__.get("orig", e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
+
+
 def read_one(db: Session, item_id: int):
     try:
         item = db.query(model.MenuItem).filter(model.MenuItem.id == item_id).first()
@@ -51,7 +62,7 @@ def update(db: Session, item_id: int, request):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Id not found!"
             )
-        update_data = request.dict(exclude_unset=True)
+        update_data = request.model_dump(exclude_unset=True)
         item_q.update(update_data, synchronize_session=False)
         db.commit()
         return item_q.first()

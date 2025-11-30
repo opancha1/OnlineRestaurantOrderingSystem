@@ -15,7 +15,6 @@ class OrderBase(BaseModel):
     tracking_number: Optional[str] = None
     user_id: Optional[int] = None
     guest_name: Optional[str] = None
-    guest_email: Optional[EmailStr] = None
     guest_phone: Optional[str] = None
 
 
@@ -26,9 +25,20 @@ class OrderCreate(BaseModel):
 
 class GuestOrderCreate(BaseModel):
     guest_name: str
-    guest_email: Optional[EmailStr] = None
     guest_phone: Optional[str] = None
     items: List[OrderItem]
+
+    class ConfigDict:
+        json_schema_extra = {
+            "example": {
+                "guest_name": "Guest User",
+                "guest_phone": "123-456-7890",
+                "items": [
+                    {"menu_item_id": 1, "quantity": 2},
+                    {"menu_item_id": 2, "quantity": 1},
+                ],
+            }
+        }
 
 
 class OrderResponse(OrderBase):

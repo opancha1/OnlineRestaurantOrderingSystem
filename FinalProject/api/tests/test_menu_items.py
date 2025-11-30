@@ -65,3 +65,22 @@ def test_delete_menu_item(db_session):
     controller.delete(db_session, created.id)
     remaining = controller.read_all(db_session)
     assert remaining == []
+
+
+def test_filter_menu_items_by_category(db_session):
+    controller.create(
+        db_session,
+        schema.MenuItemCreate(name="Burger", description="Beef", price=10.0, category="entree", calories=800),
+    )
+    controller.create(
+        db_session,
+        schema.MenuItemCreate(name="Cheesecake", description="Sweet", price=6.0, category="dessert", calories=450),
+    )
+
+    entrees = controller.read_filtered(db_session, category="entree")
+    desserts = controller.read_filtered(db_session, category="dessert")
+    all_items = controller.read_filtered(db_session, category=None)
+
+    assert len(entrees) == 1 and entrees[0].category == "entree"
+    assert len(desserts) == 1 and desserts[0].category == "dessert"
+    assert len(all_items) == 2

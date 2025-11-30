@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import func
 from fastapi import HTTPException, status, Response
 from sqlalchemy.exc import SQLAlchemyError
 from ..models import order as model
@@ -8,11 +9,49 @@ from uuid import uuid4
 
 
 def create(db: Session, request):
+    # Expect items for registered user checkout
+    if not request.items:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Order must contain at least one menu item.",
+        )
+
+    menu_item_ids = [item.menu_item_id for item in request.items]
+    existing_items = (
+        db.query(menu_model.MenuItem)
+        .filter(menu_model.MenuItem.id.in_(menu_item_ids))
+        .all()
+    )
+    existing_item_map = {item.id: item for item in existing_items}
+    missing_items = sorted(set(menu_item_ids) - set(existing_item_map.keys()))
+    if missing_items:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Menu items not found: {missing_items}",
+        )
+
+    total_price = 0.0
+    order_details = []
+    for item in request.items:
+        menu_item_obj = existing_item_map[item.menu_item_id]
+        unit_price = float(menu_item_obj.price)
+        line_total = unit_price * item.quantity
+        total_price += line_total
+        od = order_detail_model.OrderDetail(
+            menu_item_id=item.menu_item_id,
+            quantity=item.quantity,
+        )
+        od.menu_item = menu_item_obj
+        od.unit_price = unit_price  # transient for response
+        od.line_total = line_total
+        order_details.append(od)
+
     new_item = model.Order(
-        status=request.status or "Pending",
-        total_price=request.total_price,
-        tracking_number=request.tracking_number,
+        status="Pending",
+        total_price=total_price,
+        tracking_number=str(uuid4()),
         user_id=request.user_id,
+        order_details=order_details,
     )
 
     try:
@@ -20,19 +59,25 @@ def create(db: Session, request):
         db.commit()
         db.refresh(new_item)
     except SQLAlchemyError as e:
-        error = str(e.__dict__["orig"])
+        db.rollback()
+        error = str(e.__dict__.get("orig", e))
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
 
+    _attach_line_totals(new_item)
     return new_item
 
 
-def read_all(db: Session):
+def read_all(db: Session, user_id: int | None = None):
     try:
         result = (
             db.query(model.Order)
-            .options(joinedload(model.Order.order_details))
-            .all()
+            .options(
+                joinedload(model.Order.order_details).joinedload(order_detail_model.OrderDetail.menu_item)
+            )
         )
+        if user_id is not None:
+            result = result.filter(model.Order.user_id == user_id)
+        result = result.all()
     except SQLAlchemyError as e:
         error = str(e.__dict__["orig"])
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
@@ -43,7 +88,9 @@ def read_one(db: Session, item_id):
     try:
         item = (
             db.query(model.Order)
-            .options(joinedload(model.Order.order_details))
+            .options(
+                joinedload(model.Order.order_details).joinedload(order_detail_model.OrderDetail.menu_item)
+            )
             .filter(model.Order.id == item_id)
             .first()
         )
@@ -82,6 +129,15 @@ def delete(db: Session, item_id):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
+def total_price_for_user(db: Session, user_id: int):
+    try:
+        total = db.query(func.coalesce(func.sum(model.Order.total_price), 0)).filter(model.Order.user_id == user_id).scalar()
+        return {"user_id": user_id, "total_price": float(total or 0)}
+    except SQLAlchemyError as e:
+        error = str(e.__dict__["orig"])
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
+
+
 def create_guest_order(db: Session, request):
     if not request.items:
         raise HTTPException(
@@ -110,20 +166,23 @@ def create_guest_order(db: Session, request):
     order_details = []
     for item in request.items:
         menu_item_obj = existing_item_map[item.menu_item_id]
-        total_price += float(menu_item_obj.price) * item.quantity
-        order_details.append(
-            order_detail_model.OrderDetail(
-                menu_item_id=item.menu_item_id,
-                quantity=item.quantity,
-            )
+        unit_price = float(menu_item_obj.price)
+        line_total = unit_price * item.quantity
+        total_price += line_total
+        od = order_detail_model.OrderDetail(
+            menu_item_id=item.menu_item_id,
+            quantity=item.quantity,
         )
+        od.menu_item = menu_item_obj
+        od.unit_price = unit_price  # transient for response
+        od.line_total = line_total
+        order_details.append(od)
 
     new_order = model.Order(
         status="Pending",
         total_price=total_price,
         tracking_number=str(uuid4()),
         guest_name=request.guest_name,
-        guest_email=request.guest_email,
         guest_phone=request.guest_phone,
         order_details=order_details,
     )
@@ -137,4 +196,14 @@ def create_guest_order(db: Session, request):
         error = str(e.__dict__["orig"])
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
 
+    _attach_line_totals(new_order)
     return new_order
+
+
+def _attach_line_totals(order_obj):
+    """Populate transient unit_price and line_total for response rendering."""
+    for od in order_obj.order_details:
+        if hasattr(od, "menu_item") and od.menu_item:
+            unit_price = float(od.menu_item.price)
+            od.unit_price = unit_price
+            od.line_total = unit_price * od.quantity

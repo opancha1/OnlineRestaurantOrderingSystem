@@ -36,7 +36,6 @@ def test_create_guest_order_success(db_session):
 
     request = order_schema.GuestOrderCreate(
         guest_name="Walk-in Guest",
-        guest_email="guest@example.com",
         items=[
             order_schema.OrderItem(menu_item_id=item1.id, quantity=2),
             order_schema.OrderItem(menu_item_id=item2.id, quantity=1),
@@ -50,6 +49,8 @@ def test_create_guest_order_success(db_session):
     assert created_order.total_price == pytest.approx(13.0)
     assert len(created_order.order_details) == 2
     assert created_order.tracking_number is not None
+    assert created_order.order_details[0].unit_price is not None
+    assert created_order.order_details[0].line_total is not None
 
 
 def test_create_guest_order_missing_menu_item(db_session):
@@ -62,3 +63,104 @@ def test_create_guest_order_missing_menu_item(db_session):
         controller.create_guest_order(db_session, request)
 
     assert "Menu items not found" in str(exc.value.detail)
+
+
+def test_create_user_order_with_multiple_items(db_session):
+    # Seed user and menu items
+    user = user_model.User(
+        name="Test User",
+        email="user@example.com",
+        phone="123",
+        address="123 Street",
+        password="hashed",
+        role="customer",
+    )
+    item1 = menu_model.MenuItem(name="Pasta", description="Cheesy", price=12.0)
+    item2 = menu_model.MenuItem(name="Salad", description="Fresh", price=6.0)
+    db_session.add_all([user, item1, item2])
+    db_session.commit()
+
+    request = order_schema.OrderCreate(
+        user_id=user.id,
+        items=[
+            order_schema.OrderItem(menu_item_id=item1.id, quantity=1),
+            order_schema.OrderItem(menu_item_id=item2.id, quantity=2),
+        ],
+    )
+
+    created_order = controller.create(db_session, request)
+
+    assert created_order.user_id == user.id
+    assert created_order.total_price == pytest.approx(24.0)
+    assert len(created_order.order_details) == 2
+
+
+def test_filter_orders_by_user_id(db_session):
+    # Seed users and menu items
+    user1 = user_model.User(
+        name="User One",
+        email="one@example.com",
+        phone="111",
+        address="Addr1",
+        password="hashed",
+        role="customer",
+    )
+    user2 = user_model.User(
+        name="User Two",
+        email="two@example.com",
+        phone="222",
+        address="Addr2",
+        password="hashed",
+        role="customer",
+    )
+    item = menu_model.MenuItem(name="Pizza", description="Cheese", price=10.0)
+    db_session.add_all([user1, user2, item])
+    db_session.commit()
+
+    controller.create(
+        db_session,
+        order_schema.OrderCreate(
+            user_id=user1.id, items=[order_schema.OrderItem(menu_item_id=item.id, quantity=1)]
+        ),
+    )
+    controller.create(
+        db_session,
+        order_schema.OrderCreate(
+            user_id=user2.id, items=[order_schema.OrderItem(menu_item_id=item.id, quantity=2)]
+        ),
+    )
+
+    user1_orders = controller.read_all(db_session, user_id=user1.id)
+    assert len(user1_orders) == 1
+    assert user1_orders[0].user_id == user1.id
+
+
+def test_total_price_for_user(db_session):
+    user = user_model.User(
+        name="Totals User",
+        email="totals@example.com",
+        phone="333",
+        address="Addr3",
+        password="hashed",
+        role="customer",
+    )
+    item = menu_model.MenuItem(name="Burger", description="Beefy", price=10.0)
+    db_session.add_all([user, item])
+    db_session.commit()
+
+    controller.create(
+        db_session,
+        order_schema.OrderCreate(
+            user_id=user.id, items=[order_schema.OrderItem(menu_item_id=item.id, quantity=1)]
+        ),
+    )
+    controller.create(
+        db_session,
+        order_schema.OrderCreate(
+            user_id=user.id, items=[order_schema.OrderItem(menu_item_id=item.id, quantity=2)]
+        ),
+    )
+
+    summary = controller.total_price_for_user(db_session, user.id)
+    assert summary["user_id"] == user.id
+    assert summary["total_price"] == pytest.approx(30.0)

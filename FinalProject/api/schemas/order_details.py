@@ -20,6 +20,8 @@ class OrderDetailUpdate(BaseModel):
 
 class OrderDetail(OrderDetailBase):
     id: int
+    unit_price: Optional[float] = None
+    line_total: Optional[float] = None
 
     class ConfigDict:
         from_attributes = True
