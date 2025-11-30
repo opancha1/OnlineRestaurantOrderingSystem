@@ -60,6 +60,8 @@ def test_create_payment_success(db_session):
     assert payment.id is not None
     assert payment.order_id == order.id
     assert payment.amount == pytest.approx(order.total_price)
+    updated_order = orders_controller.read_one(db_session, order.id)
+    assert updated_order.status == "Paid"
 
 
 def test_create_payment_amount_mismatch(db_session):
@@ -93,3 +95,102 @@ def test_read_payment_by_id(db_session):
 
     assert fetched.id == payment.id
     assert fetched.payment_type == "UPI"
+
+
+def test_order_includes_payment_relationship(db_session):
+    order = create_order_with_items(db_session)
+    payments_controller.create(
+        db_session,
+        payment_schema.PaymentCreate(
+            order_id=order.id,
+            payment_type="Card",
+            transaction_status="Success",
+            amount=order.total_price,
+        ),
+    )
+
+    order_with_payment = orders_controller.read_one(db_session, order.id)
+
+    assert order_with_payment.payment is not None
+    assert order_with_payment.payment.amount == pytest.approx(order.total_price)
+    assert order_with_payment.status == "Paid"
+
+
+def test_pending_payment_does_not_mark_order_paid(db_session):
+    order = create_order_with_items(db_session)
+
+    payments_controller.create(
+        db_session,
+        payment_schema.PaymentCreate(
+            order_id=order.id,
+            payment_type="Cash",
+            transaction_status="Pending",
+            amount=order.total_price,
+        ),
+    )
+
+    order_still_pending = orders_controller.read_one(db_session, order.id)
+    assert order_still_pending.status == "Pending"
+
+
+def test_update_payment_marks_order_paid(db_session):
+    order = create_order_with_items(db_session)
+    payment = payments_controller.create(
+        db_session,
+        payment_schema.PaymentCreate(
+            order_id=order.id,
+            payment_type="Cash",
+            transaction_status="Pending",
+            amount=order.total_price,
+        ),
+    )
+
+    updated = payments_controller.update(
+        db_session,
+        payment.id,
+        payment_schema.PaymentUpdate(transaction_status="Success"),
+    )
+
+    assert updated.transaction_status == "Success"
+    refreshed_order = orders_controller.read_one(db_session, order.id)
+    assert refreshed_order.status == "Paid"
+
+
+def test_update_payment_amount_mismatch_rejected(db_session):
+    order = create_order_with_items(db_session)
+    payment = payments_controller.create(
+        db_session,
+        payment_schema.PaymentCreate(
+            order_id=order.id,
+            payment_type="Card",
+            transaction_status="Pending",
+            amount=order.total_price,
+        ),
+    )
+
+    with pytest.raises(HTTPException):
+        payments_controller.update(
+            db_session,
+            payment.id,
+            payment_schema.PaymentUpdate(amount=order.total_price + 10),
+        )
+
+
+def test_delete_payment_resets_order_status(db_session):
+    order = create_order_with_items(db_session)
+    payment = payments_controller.create(
+        db_session,
+        payment_schema.PaymentCreate(
+            order_id=order.id,
+            payment_type="Card",
+            transaction_status="Success",
+            amount=order.total_price,
+        ),
+    )
+
+    payments_controller.delete(db_session, payment.id)
+
+    reverted_order = orders_controller.read_one(db_session, order.id)
+    assert reverted_order.status == "Pending"
+    with pytest.raises(HTTPException):
+        payments_controller.read_one(db_session, payment.id)

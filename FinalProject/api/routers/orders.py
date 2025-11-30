@@ -39,6 +39,11 @@ def read_one(item_id: int, db: Session = Depends(get_db)):
     return controller.read_one(db, item_id=item_id)
 
 
+@router.get("/track/{tracking_number}", response_model=order_schema.OrderResponse)
+def track_order(tracking_number: str, db: Session = Depends(get_db)):
+    return controller.track_by_number(db=db, tracking_number=tracking_number)
+
+
 @router.get("/total/summary")
 def total_price_for_user(user_id: int, db: Session = Depends(get_db)):
     return controller.total_price_for_user(db, user_id=user_id)

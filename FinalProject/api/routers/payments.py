@@ -15,3 +15,15 @@ def create_payment(request: schema.PaymentCreate, db: Session = Depends(get_db))
 @router.get("/{payment_id}", response_model=schema.PaymentResponse)
 def read_payment(payment_id: int, db: Session = Depends(get_db)):
     return controller.read_one(db=db, item_id=payment_id)
+
+
+@router.put("/{payment_id}", response_model=schema.PaymentResponse)
+def update_payment(
+    payment_id: int, request: schema.PaymentUpdate, db: Session = Depends(get_db)
+):
+    return controller.update(db=db, item_id=payment_id, request=request)
+
+
+@router.delete("/{payment_id}")
+def delete_payment(payment_id: int, db: Session = Depends(get_db)):
+    return controller.delete(db=db, item_id=payment_id)

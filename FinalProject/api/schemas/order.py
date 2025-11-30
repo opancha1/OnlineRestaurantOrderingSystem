@@ -2,6 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field
 from typing import List, Optional
 from .order_details import OrderDetail as OrderDetailResponse
+from .payment import PaymentResponse
 
 
 class OrderItem(BaseModel):
@@ -45,6 +46,7 @@ class OrderResponse(OrderBase):
     id: int
     order_date: Optional[datetime] = None
     order_details: List[OrderDetailResponse] = []
+    payment: Optional[PaymentResponse] = None
 
     class ConfigDict:
         from_attributes = True

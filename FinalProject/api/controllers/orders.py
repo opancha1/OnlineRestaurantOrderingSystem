@@ -72,7 +72,8 @@ def read_all(db: Session, user_id: int | None = None):
         result = (
             db.query(model.Order)
             .options(
-                joinedload(model.Order.order_details).joinedload(order_detail_model.OrderDetail.menu_item)
+                joinedload(model.Order.order_details).joinedload(order_detail_model.OrderDetail.menu_item),
+                joinedload(model.Order.payment),
             )
         )
         if user_id is not None:
@@ -89,13 +90,35 @@ def read_one(db: Session, item_id):
         item = (
             db.query(model.Order)
             .options(
-                joinedload(model.Order.order_details).joinedload(order_detail_model.OrderDetail.menu_item)
+                joinedload(model.Order.order_details).joinedload(order_detail_model.OrderDetail.menu_item),
+                joinedload(model.Order.payment),
             )
             .filter(model.Order.id == item_id)
             .first()
         )
         if not item:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Id not found!")
+    except SQLAlchemyError as e:
+        error = str(e.__dict__["orig"])
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
+    return item
+
+
+def track_by_number(db: Session, tracking_number: str):
+    try:
+        item = (
+            db.query(model.Order)
+            .options(
+                joinedload(model.Order.order_details).joinedload(order_detail_model.OrderDetail.menu_item),
+                joinedload(model.Order.payment),
+            )
+            .filter(model.Order.tracking_number == tracking_number)
+            .first()
+        )
+        if not item:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Tracking number not found!"
+            )
     except SQLAlchemyError as e:
         error = str(e.__dict__["orig"])
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
