@@ -3,6 +3,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from ..models import payment as payment_model
 from ..models import order as order_model
+from ..controllers import notifications as notification_controller
 
 
 def create(db: Session, request):
@@ -43,6 +44,13 @@ def create(db: Session, request):
         db.add(new_payment)
         db.commit()
         db.refresh(new_payment)
+        if request.transaction_status.lower() == "success":
+            try:
+                notification_controller.log_status_notification(
+                    db=db, order_id=new_payment.order_id, new_status=order.status
+                )
+            except HTTPException:
+                pass
     except SQLAlchemyError as e:
         db.rollback()
         error = str(e.__dict__.get("orig", e))

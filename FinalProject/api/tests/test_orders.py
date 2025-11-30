@@ -8,6 +8,7 @@ from ..models import menu_item as menu_model
 from ..models import user as user_model  # ensure users table is registered
 from ..models import order_details as order_details_model  # ensure order_details table is registered
 from ..models import payment as payment_model  # ensure payment table is registered
+from ..models import notification as notification_model  # ensure notification table is registered
 from ..models import review as review_model  # ensure review table is registered
 from ..schemas import order as order_schema
 

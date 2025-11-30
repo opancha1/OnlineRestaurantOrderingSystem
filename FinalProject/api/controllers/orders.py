@@ -5,6 +5,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from ..models import order as model
 from ..models import menu_item as menu_model
 from ..models import order_details as order_detail_model
+from ..controllers import promotions as promotion_controller
+from ..controllers import notifications as notification_controller
 from uuid import uuid4
 
 
@@ -46,12 +48,21 @@ def create(db: Session, request):
         od.line_total = line_total
         order_details.append(od)
 
+    promotion = None
+    if request.promo_code:
+        promotion = promotion_controller.get_valid_promotion(db, request.promo_code)
+        discount = (promotion.discount_percent or 0) / 100
+        total_price = max(0.0, total_price * (1 - discount))
+
     new_item = model.Order(
         status="Pending",
         total_price=total_price,
         tracking_number=str(uuid4()),
         user_id=request.user_id,
         order_details=order_details,
+        promotion_id=promotion.id if promotion else None,
+        promotion_code=promotion.promo_code if promotion else None,
+        promotion_discount=promotion.discount_percent if promotion else 0,
     )
 
     try:
@@ -128,15 +139,26 @@ def track_by_number(db: Session, tracking_number: str):
 def update(db: Session, item_id, request):
     try:
         item = db.query(model.Order).filter(model.Order.id == item_id)
-        if not item.first():
+        existing = item.first()
+        if not existing:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Id not found!")
-        update_data = request.dict(exclude_unset=True)
+        update_data = request.model_dump(exclude_unset=True)
+        status_changed = "status" in update_data and update_data["status"] != existing.status
         item.update(update_data, synchronize_session=False)
         db.commit()
+        updated = item.first()
+        if status_changed:
+            try:
+                notification_controller.log_status_notification(
+                    db=db, order_id=updated.id, new_status=updated.status
+                )
+            except HTTPException:
+                # Notification failure shouldn't break order update
+                pass
     except SQLAlchemyError as e:
         error = str(e.__dict__["orig"])
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
-    return item.first()
+    return updated
 
 
 def delete(db: Session, item_id):
@@ -201,6 +223,12 @@ def create_guest_order(db: Session, request):
         od.line_total = line_total
         order_details.append(od)
 
+    promotion = None
+    if request.promo_code:
+        promotion = promotion_controller.get_valid_promotion(db, request.promo_code)
+        discount = (promotion.discount_percent or 0) / 100
+        total_price = max(0.0, total_price * (1 - discount))
+
     new_order = model.Order(
         status="Pending",
         total_price=total_price,
@@ -208,6 +236,9 @@ def create_guest_order(db: Session, request):
         guest_name=request.guest_name,
         guest_phone=request.guest_phone,
         order_details=order_details,
+        promotion_id=promotion.id if promotion else None,
+        promotion_code=promotion.promo_code if promotion else None,
+        promotion_discount=promotion.discount_percent if promotion else 0,
     )
 
     try:

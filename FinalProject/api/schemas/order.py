@@ -17,17 +17,21 @@ class OrderBase(BaseModel):
     user_id: Optional[int] = None
     guest_name: Optional[str] = None
     guest_phone: Optional[str] = None
+    promotion_code: Optional[str] = None
+    promotion_discount: Optional[float] = 0.0
 
 
 class OrderCreate(BaseModel):
     user_id: int
     items: List[OrderItem]
+    promo_code: Optional[str] = None
 
 
 class GuestOrderCreate(BaseModel):
     guest_name: str
     guest_phone: Optional[str] = None
     items: List[OrderItem]
+    promo_code: Optional[str] = None
 
     class ConfigDict:
         json_schema_extra = {

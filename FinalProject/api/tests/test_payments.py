@@ -10,6 +10,7 @@ from ..models import user as user_model
 from ..models import order_details as order_details_model  # register relationship metadata
 from ..models import payment as payment_model  # register relationship metadata
 from ..models import review as review_model  # register relationship metadata
+from ..models import notification as notification_model  # register relationship metadata
 from ..schemas import payment as payment_schema
 from ..schemas import order as order_schema
 

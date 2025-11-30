@@ -6,6 +6,7 @@ from . import (
     order_details,
     menu_item,
     payment,
+    notification,
     review,
     promotion,
     recipes,

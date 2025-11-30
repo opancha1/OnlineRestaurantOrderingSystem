@@ -14,6 +14,9 @@ class Order(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     guest_name = Column(String(100))
     guest_phone = Column(String(20))
+    promotion_id = Column(Integer, ForeignKey("promotions.id"), nullable=True)
+    promotion_code = Column(String(50))
+    promotion_discount = Column(Float, default=0)
     user = relationship("User", back_populates="orders")
     order_details = relationship(
         "OrderDetail", back_populates="order", cascade="all, delete-orphan"
@@ -21,3 +24,7 @@ class Order(Base):
     payment = relationship(
         "Payment", back_populates="order", uselist=False, cascade="all, delete-orphan"
     )
+    notifications = relationship(
+        "Notification", back_populates="order", cascade="all, delete-orphan"
+    )
+    promotion = relationship("Promotion")
