@@ -15,5 +15,5 @@ class PaymentResponse(PaymentBase):
     id: int
     order_id: int
 
-    class Config:
-        orm_mode = True
+    class ConfigDict:
+        from_attributes = True
