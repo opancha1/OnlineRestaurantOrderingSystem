@@ -1,23 +1,40 @@
-from pydantic import BaseModel
-from typing import List
-from .order_detail import OrderDetailResponse
+from datetime import datetime
+from pydantic import BaseModel, EmailStr, Field
+from typing import List, Optional
+from .order_details import OrderDetail as OrderDetailResponse
+
+
+class OrderItem(BaseModel):
+    menu_item_id: int
+    quantity: int = Field(gt=0, description="Quantity must be greater than zero")
 
 
 class OrderBase(BaseModel):
-    status: str | None = "Pending"
-    total_price: float | None = None
-    tracking_number: str | None = None
+    status: Optional[str] = "Pending"
+    total_price: Optional[float] = None
+    tracking_number: Optional[str] = None
+    user_id: Optional[int] = None
+    guest_name: Optional[str] = None
+    guest_email: Optional[EmailStr] = None
+    guest_phone: Optional[str] = None
 
 
 class OrderCreate(BaseModel):
     user_id: int
-    items: List[dict]  # [{ "menu_item_id": 1, "quantity": 2 }, ...]
+    items: List[OrderItem]
+
+
+class GuestOrderCreate(BaseModel):
+    guest_name: str
+    guest_email: Optional[EmailStr] = None
+    guest_phone: Optional[str] = None
+    items: List[OrderItem]
 
 
 class OrderResponse(OrderBase):
     id: int
-    user_id: int
+    order_date: Optional[datetime] = None
     order_details: List[OrderDetailResponse] = []
 
-    class Config:
-        orm_mode = True
+    class ConfigDict:
+        from_attributes = True

@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, FastAPI, status, Response
 from sqlalchemy.orm import Session
 from ..controllers import orders as controller
 from ..schemas import orders as schema
+from ..schemas import order as order_schema
 from ..dependencies.database import engine, get_db
 
 router = APIRouter(
@@ -15,12 +16,23 @@ def create(request: schema.OrderCreate, db: Session = Depends(get_db)):
     return controller.create(db=db, request=request)
 
 
-@router.get("/", response_model=list[schema.Order])
+@router.post(
+    "/guest",
+    response_model=order_schema.OrderResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_guest_order(
+    request: order_schema.GuestOrderCreate, db: Session = Depends(get_db)
+):
+    return controller.create_guest_order(db=db, request=request)
+
+
+@router.get("/", response_model=list[order_schema.OrderResponse])
 def read_all(db: Session = Depends(get_db)):
     return controller.read_all(db)
 
 
-@router.get("/{item_id}", response_model=schema.Order)
+@router.get("/{item_id}", response_model=order_schema.OrderResponse)
 def read_one(item_id: int, db: Session = Depends(get_db)):
     return controller.read_one(db, item_id=item_id)
 

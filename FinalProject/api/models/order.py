@@ -10,7 +10,11 @@ class Order(Base):
     status = Column(String(50), default="Pending")
     total_price = Column(Float)
     tracking_number = Column(String(100))
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    # Registered users have a user_id; guests store contact fields instead.
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    guest_name = Column(String(100))
+    guest_email = Column(String(120))
+    guest_phone = Column(String(20))
     user = relationship("User", back_populates="orders")
     order_details = relationship(
         "OrderDetail", back_populates="order", cascade="all, delete-orphan"
