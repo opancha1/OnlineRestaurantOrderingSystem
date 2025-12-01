@@ -15,8 +15,11 @@ class OrderBase(BaseModel):
     total_price: Optional[float] = None
     tracking_number: Optional[str] = None
     user_id: Optional[int] = None
+    order_type: Optional[str] = "takeout"
     guest_name: Optional[str] = None
+    guest_email: Optional[str] = None
     guest_phone: Optional[str] = None
+    description: Optional[str] = None
     promotion_code: Optional[str] = None
     promotion_discount: Optional[float] = 0.0
 
@@ -24,13 +27,17 @@ class OrderBase(BaseModel):
 class OrderCreate(BaseModel):
     user_id: int
     items: List[OrderItem]
+    order_type: Optional[str] = "takeout"
     promo_code: Optional[str] = None
 
 
 class GuestOrderCreate(BaseModel):
     guest_name: str
+    guest_email: Optional[str] = None
     guest_phone: Optional[str] = None
+    description: Optional[str] = None
     items: List[OrderItem]
+    order_type: Optional[str] = "takeout"
     promo_code: Optional[str] = None
 
     class ConfigDict:
@@ -44,6 +51,14 @@ class GuestOrderCreate(BaseModel):
                 ],
             }
         }
+
+
+class GuestOrderUpdate(BaseModel):
+    guest_name: Optional[str] = None
+    guest_phone: Optional[str] = None
+    guest_email: Optional[str] = None
+    description: Optional[str] = None
+    order_type: Optional[str] = None
 
 
 class OrderResponse(OrderBase):

@@ -11,6 +11,11 @@ class ReviewCreate(ReviewBase):
     menu_item_id: int
 
 
+class ReviewUpdate(BaseModel):
+    rating: int | None = None
+    comment: str | None = None
+
+
 class ReviewResponse(ReviewBase):
     id: int
     user_id: int

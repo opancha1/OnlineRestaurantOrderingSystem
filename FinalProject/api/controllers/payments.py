@@ -1,8 +1,10 @@
 from fastapi import HTTPException, status, Response
+from sqlalchemy import or_
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from ..models import payment as payment_model
 from ..models import order as order_model
+from ..models import user as user_model
 from ..controllers import notifications as notification_controller
 
 
@@ -69,6 +71,32 @@ def read_one(db: Session, item_id: int):
         if not payment:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Payment not found!"
+            )
+    except SQLAlchemyError as e:
+        error = str(e.__dict__.get("orig", e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
+    return payment
+
+
+def read_by_user(db: Session, payment_id: int, username: str):
+    try:
+        payment = (
+            db.query(payment_model.Payment)
+            .join(order_model.Order)
+            .outerjoin(user_model.User)
+            .filter(payment_model.Payment.id == payment_id)
+            .filter(
+                or_(
+                    user_model.User.name == username,
+                    order_model.Order.guest_name == username,
+                )
+            )
+            .first()
+        )
+        if not payment:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Payment not found for this user!",
             )
     except SQLAlchemyError as e:
         error = str(e.__dict__.get("orig", e))

@@ -43,6 +43,81 @@ def read_all(db: Session):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
 
 
+def read_one(db: Session, item_id: int):
+    try:
+        promo = (
+            db.query(promotion_model.Promotion)
+            .filter(promotion_model.Promotion.id == item_id)
+            .first()
+        )
+        if not promo:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Promotion not found.")
+        return promo
+    except SQLAlchemyError as e:
+        error = str(e.__dict__.get("orig", e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
+
+
+def update(db: Session, item_id: int, request):
+    promo = (
+        db.query(promotion_model.Promotion)
+        .filter(promotion_model.Promotion.id == item_id)
+        .first()
+    )
+    if not promo:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Promotion not found.")
+
+    update_data = request.model_dump(exclude_unset=True)
+    if "promo_code" in update_data and update_data["promo_code"]:
+        update_data["promo_code"] = update_data["promo_code"].upper()
+
+    if not update_data:
+        return promo
+
+    if "promo_code" in update_data:
+        existing = (
+            db.query(promotion_model.Promotion)
+            .filter(promotion_model.Promotion.promo_code == update_data["promo_code"])
+            .filter(promotion_model.Promotion.id != item_id)
+            .first()
+        )
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Promo code already exists.",
+            )
+
+    try:
+        for field, value in update_data.items():
+            setattr(promo, field, value)
+        db.commit()
+        db.refresh(promo)
+    except SQLAlchemyError as e:
+        db.rollback()
+        error = str(e.__dict__.get("orig", e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
+    return promo
+
+
+def delete(db: Session, item_id: int):
+    promo = (
+        db.query(promotion_model.Promotion)
+        .filter(promotion_model.Promotion.id == item_id)
+        .first()
+    )
+    if not promo:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Promotion not found.")
+
+    try:
+        db.delete(promo)
+        db.commit()
+    except SQLAlchemyError as e:
+        db.rollback()
+        error = str(e.__dict__.get("orig", e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
+    return {"detail": "Promotion deleted"}
+
+
 def get_valid_promotion(db: Session, promo_code: str):
     if not promo_code:
         return None

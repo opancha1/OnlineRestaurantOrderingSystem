@@ -13,6 +13,13 @@ class NotificationCreate(NotificationBase):
     pass
 
 
+class NotificationUpdate(BaseModel):
+    order_id: Optional[int] = None
+    channel: Optional[str] = None
+    status: Optional[str] = None
+    message: Optional[str] = None
+
+
 class NotificationResponse(NotificationBase):
     id: int
 

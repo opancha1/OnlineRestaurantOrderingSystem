@@ -11,5 +11,6 @@ class MenuItem(Base):
     price = Column(Float, nullable=False)
     category = Column(String(50))
     calories = Column(Integer)
+    stock = Column(Integer, nullable=False, default=0)
     order_details = relationship("OrderDetail", back_populates="menu_item")
     reviews = relationship("Review", back_populates="menu_item")

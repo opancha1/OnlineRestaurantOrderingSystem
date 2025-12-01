@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Float, String, ForeignKey, DateTime, func
+from sqlalchemy import Column, Integer, Float, String, ForeignKey, DateTime, func, Text
 from sqlalchemy.orm import relationship
 from ..dependencies.database import Base
 
@@ -10,10 +10,13 @@ class Order(Base):
     status = Column(String(50), default="Pending")
     total_price = Column(Float)
     tracking_number = Column(String(100))
+    order_type = Column(String(50), default="takeout")
     # Registered users have a user_id; guests store contact fields instead.
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     guest_name = Column(String(100))
+    guest_email = Column(String(255))
     guest_phone = Column(String(20))
+    description = Column(Text)
     promotion_id = Column(Integer, ForeignKey("promotions.id"), nullable=True)
     promotion_code = Column(String(50))
     promotion_discount = Column(Float, default=0)

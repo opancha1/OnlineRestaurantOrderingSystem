@@ -29,9 +29,11 @@ def create_guest_order(
 @router.get("/", response_model=list[order_schema.OrderResponse])
 def read_all(
     user_id: int | None = None,
+    start_date: str | None = None,
+    end_date: str | None = None,
     db: Session = Depends(get_db),
 ):
-    return controller.read_all(db, user_id=user_id)
+    return controller.read_all(db, user_id=user_id, start_date=start_date, end_date=end_date)
 
 
 @router.get("/track/{tracking_number}", response_model=order_schema.OrderResponse)
@@ -62,3 +64,10 @@ def update(item_id: int, request: order_schema.OrderBase, db: Session = Depends(
 @router.delete("/{item_id}")
 def delete(item_id: int, db: Session = Depends(get_db)):
     return controller.delete(db=db, item_id=item_id)
+
+
+@router.put("/guest/{item_id}", response_model=order_schema.OrderResponse)
+def update_guest_order(
+    item_id: int, request: order_schema.GuestOrderUpdate, db: Session = Depends(get_db)
+):
+    return controller.update_guest_details(db=db, item_id=item_id, request=request)

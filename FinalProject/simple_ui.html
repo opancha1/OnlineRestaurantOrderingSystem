@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>Restaurant Ordering System UI</title>
+    <link rel="icon" href="GUJJUS.jpeg" type="image/jpeg" />
     <style>
       :root {
         --bg: #f5f7fb;
@@ -53,9 +54,39 @@
     }
       h1 {
         grid-column: 1 / -1;
-        margin: 0 0 12px;
-        font-size: 32px;
+        margin: 0 0 16px;
+        font-size: 36px;
         letter-spacing: -0.02em;
+      }
+      .action-bar {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 6px;
+        margin-top: 4px;
+      }
+      .action-button {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: #fff;
+        border: none;
+        border-radius: 16px;
+        padding: 14px 20px;
+        font-weight: 800;
+        font-size: 16px;
+        letter-spacing: 0.01em;
+        cursor: pointer;
+        box-shadow: 0 14px 30px rgba(37, 99, 235, 0.25);
+        transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
+      }
+      .action-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 16px 32px rgba(37, 99, 235, 0.28);
+        filter: brightness(1.03);
+      }
+      .section-anchor {
+        grid-column: 1 / -1;
+        height: 1px;
       }
     h2 {
       margin: 0 0 14px;
@@ -150,6 +181,102 @@
   <body>
     <div class="layout">
       <h1>Restaurant Ordering System UI</h1>
+      <div class="action-bar">
+        <button class="action-button" data-target="section-orders">Place Order</button>
+        <button class="action-button" data-target="section-menu">Menu Management</button>
+        <button class="action-button" data-target="section-reviews">Reviews</button>
+        <button class="action-button" data-target="section-promos">Promotions</button>
+        <button class="action-button" data-target="section-analytics">Sales & Analytics</button>
+      </div>
+
+    <div id="section-menu" class="section-anchor"></div>
+
+    <div class="card">
+      <div class="tag">POST /menu</div>
+      <h2>Create Menu Item</h2>
+      <form id="menu-create-form">
+        <label>Name</label>
+        <input name="name" required />
+        <label>Description</label>
+        <input name="description" required />
+        <label>Category</label>
+        <input name="category" placeholder="entree / dessert / drink" required />
+        <label>Price</label>
+        <input name="price" type="number" step="0.01" min="0" required />
+        <label>Calories</label>
+        <input name="calories" type="number" min="0" required />
+        <label>Stock</label>
+        <input name="stock" type="number" min="0" value="0" required />
+        <button type="submit">Save Menu Item</button>
+      </form>
+      <div class="status" id="menu-create-status"></div>
+      <pre id="menu-create-result"></pre>
+    </div>
+
+    <div class="card">
+      <div class="tag">GET /menu (optional category filter)</div>
+      <h2>List Menu Items</h2>
+      <form id="menu-list-form">
+        <label>Category (optional)</label>
+        <input name="category" placeholder="e.g. entree" />
+        <button type="submit">Fetch Menu</button>
+      </form>
+      <div class="status" id="menu-list-status"></div>
+      <pre id="menu-list-result"></pre>
+    </div>
+
+    <div class="card">
+      <div class="tag">GET /menu (search by name)</div>
+      <h2>Get Menu Item By Name</h2>
+      <form id="menu-get-form">
+        <label>Item Name</label>
+        <input name="item_name" placeholder="Type full or partial name" required />
+        <button type="submit">Search Item</button>
+      </form>
+      <div class="status" id="menu-get-status"></div>
+      <pre id="menu-get-result"></pre>
+    </div>
+
+    <div class="card">
+      <div class="tag">PUT /menu/{id}</div>
+      <h2>Update Menu Item</h2>
+      <form id="menu-update-form">
+        <label>Item ID (required)</label>
+        <input name="item_id" type="number" min="1" required />
+        <label>Name (required)</label>
+        <input name="name" required />
+        <label>Description (required)</label>
+        <input name="description" required />
+        <label>Category (required)</label>
+        <input name="category" placeholder="entree / dessert / drink" required />
+        <label>Price (required)</label>
+        <input name="price" type="number" step="0.01" min="0" required />
+        <label>Calories (required)</label>
+        <input name="calories" type="number" min="0" required />
+        <label>Stock (required)</label>
+        <input name="stock" type="number" min="0" required />
+        <div class="status" style="min-height: 0; margin-bottom: 8px; color: var(--muted); font-size: 13px;">
+          All fields are required for updates.
+        </div>
+        <button type="submit">Update Item</button>
+      </form>
+      <div class="status" id="menu-update-status"></div>
+      <pre id="menu-update-result"></pre>
+    </div>
+
+    <div class="card">
+      <div class="tag">DELETE /menu/{id}</div>
+      <h2>Delete Menu Item</h2>
+      <form id="menu-delete-form">
+        <label>Item ID</label>
+        <input name="item_id" type="number" min="1" required />
+        <button type="submit">Delete Item</button>
+      </form>
+      <div class="status" id="menu-delete-status"></div>
+      <pre id="menu-delete-result"></pre>
+    </div>
+
+    <div id="section-orders" class="section-anchor"></div>
 
     <div class="card">
       <div class="tag">POST /orders/guest</div>
@@ -157,8 +284,17 @@
       <form id="guest-order-form">
         <label>Guest Name</label>
         <input name="guest_name" required />
+        <label>Guest Email (optional)</label>
+        <input name="guest_email" type="email" />
         <label>Guest Phone</label>
         <input name="guest_phone" />
+        <label>Notes / Description (optional)</label>
+        <textarea name="description" placeholder="Any special notes"></textarea>
+        <label>Order Type</label>
+        <select name="order_type">
+          <option value="takeout">Takeout</option>
+          <option value="delivery">Delivery</option>
+        </select>
         <label>Promo Code (optional)</label>
         <input name="promo_code" />
         <label>Menu Item</label>
@@ -205,9 +341,23 @@
           <input name="amount" type="number" step="0.01" min="0" required />
           <button type="submit">Submit Payment</button>
         </form>
-        <div class="status" id="payment-status"></div>
-        <pre id="payment-result"></pre>
-      </div>
+      <div class="status" id="payment-status"></div>
+      <pre id="payment-result"></pre>
+    </div>
+
+    <div class="card">
+      <div class="tag">GET /payments/by-user</div>
+      <h2>Get Payment By User</h2>
+      <form id="payment-by-user-form">
+        <label>Payment ID</label>
+        <input name="payment_id" type="number" min="1" required />
+        <label>Username</label>
+        <input name="username" required />
+        <button type="submit">Fetch Payment</button>
+      </form>
+      <div class="status" id="payment-by-user-status"></div>
+      <pre id="payment-by-user-result"></pre>
+    </div>
 
       <div class="card">
         <div class="tag">POST /notifications/test</div>
@@ -247,18 +397,6 @@
       </div>
 
       <div class="card">
-        <div class="tag">GET /payments/{id}</div>
-        <h2>Get Payment</h2>
-        <form id="payment-get-form">
-          <label>Payment ID</label>
-          <input name="payment_id" type="number" min="1" required />
-          <button type="submit">Fetch Payment</button>
-        </form>
-        <div class="status" id="payment-get-status"></div>
-        <pre id="payment-get-result"></pre>
-      </div>
-
-      <div class="card">
         <div class="tag">DELETE /payments/{id}</div>
         <h2>Delete Payment</h2>
         <form id="payment-delete-form">
@@ -276,11 +414,113 @@
       <form id="orders-list-form">
         <label>User ID (optional)</label>
         <input name="user_id" type="number" min="1" />
+        <label>Start Date (optional)</label>
+        <input name="start_date" type="date" />
+        <label>End Date (optional)</label>
+        <input name="end_date" type="date" />
         <button type="submit">Fetch Orders</button>
       </form>
       <div class="status" id="orders-list-status"></div>
       <pre id="orders-list-result"></pre>
     </div>
+
+      <div class="card">
+        <div class="tag">PUT /orders/guest/{id}</div>
+        <h2>Update Guest Details</h2>
+        <form id="guest-update-form">
+          <label>Order ID (guest order)</label>
+          <input name="order_id" type="number" min="1" required />
+          <label>Guest Name (optional)</label>
+          <input name="guest_name" placeholder="Leave blank to keep" />
+          <label>Guest Email (optional)</label>
+          <input name="guest_email" type="email" placeholder="Leave blank to keep" />
+          <label>Guest Phone (optional)</label>
+          <input name="guest_phone" placeholder="Leave blank to keep" />
+          <label>Notes / Description (optional)</label>
+          <textarea name="description" placeholder="Leave blank to keep"></textarea>
+          <label>Order Type (optional)</label>
+          <select name="order_type">
+            <option value="">(no change)</option>
+            <option value="takeout">Takeout</option>
+            <option value="delivery">Delivery</option>
+          </select>
+          <button type="submit">Update Guest</button>
+        </form>
+        <div class="status" id="guest-update-status"></div>
+        <pre id="guest-update-result"></pre>
+      </div>
+
+      <div class="card">
+        <div class="tag">DELETE /orders/{id}</div>
+        <h2>Delete Guest Order</h2>
+        <form id="guest-delete-form">
+          <label>Order ID (guest order)</label>
+          <input name="order_id" type="number" min="1" required />
+          <button type="submit">Delete Guest Order</button>
+        </form>
+        <div class="status" id="guest-delete-status"></div>
+        <pre id="guest-delete-result"></pre>
+      </div>
+
+      <div id="section-reviews" class="section-anchor"></div>
+
+      <div class="card">
+        <div class="tag">POST /reviews</div>
+        <h2>Create Review</h2>
+        <form id="review-create-form">
+          <label>User ID</label>
+          <input name="user_id" type="number" min="1" required />
+          <label>Menu Item ID</label>
+          <input name="menu_item_id" type="number" min="1" required />
+          <label>Rating (1-5)</label>
+          <input name="rating" type="number" min="1" max="5" required />
+          <label>Comment (optional)</label>
+          <textarea name="comment" placeholder="Share your experience"></textarea>
+          <button type="submit">Submit Review</button>
+        </form>
+        <div class="status" id="review-create-status"></div>
+        <pre id="review-create-result"></pre>
+      </div>
+
+      <div class="card">
+        <div class="tag">GET /reviews</div>
+        <h2>List Reviews</h2>
+        <form id="review-list-form">
+          <button type="submit">Fetch Reviews</button>
+        </form>
+        <div class="status" id="review-list-status"></div>
+        <pre id="review-list-result"></pre>
+      </div>
+
+      <div class="card">
+        <div class="tag">PUT /reviews/{id}</div>
+        <h2>Update Review</h2>
+        <form id="review-update-form">
+          <label>Review ID</label>
+          <input name="id" type="number" min="1" required />
+          <label>Rating (optional)</label>
+          <input name="rating" type="number" min="1" max="5" />
+          <label>Comment (optional)</label>
+          <textarea name="comment" placeholder="Leave blank to keep"></textarea>
+          <button type="submit">Update Review</button>
+        </form>
+        <div class="status" id="review-update-status"></div>
+        <pre id="review-update-result"></pre>
+      </div>
+
+      <div class="card">
+        <div class="tag">DELETE /reviews/{id}</div>
+        <h2>Delete Review</h2>
+        <form id="review-delete-form">
+          <label>Review ID</label>
+          <input name="id" type="number" min="1" required />
+          <button type="submit">Delete Review</button>
+        </form>
+        <div class="status" id="review-delete-status"></div>
+        <pre id="review-delete-result"></pre>
+      </div>
+
+      <div id="section-analytics" class="section-anchor"></div>
 
       <div class="card">
         <div class="tag">GET /analytics/sales</div>
@@ -290,6 +530,20 @@
         </form>
         <div class="status" id="analytics-sales-status"></div>
         <pre id="analytics-sales-result"></pre>
+      </div>
+
+      <div class="card">
+        <div class="tag">GET /analytics/sales-range</div>
+        <h2>Sales By Date Range</h2>
+        <form id="analytics-sales-range-form">
+          <label>Start Date (optional)</label>
+          <input name="start_date" type="date" />
+          <label>End Date (optional)</label>
+          <input name="end_date" type="date" />
+          <button type="submit">Fetch Range Sales</button>
+        </form>
+        <div class="status" id="analytics-sales-range-status"></div>
+        <pre id="analytics-sales-range-result"></pre>
       </div>
 
       <div class="card">
@@ -303,6 +557,20 @@
         <div class="status" id="analytics-popular-status"></div>
         <pre id="analytics-popular-result"></pre>
       </div>
+
+      <div class="card">
+        <div class="tag">GET /analytics/low-rated</div>
+        <h2>Low Rated Items</h2>
+        <form id="analytics-low-rated-form">
+          <label>Max Avg Rating</label>
+          <input name="max_rating" type="number" min="1" max="5" value="2" />
+          <button type="submit">Fetch Low Rated</button>
+        </form>
+        <div class="status" id="analytics-low-rated-status"></div>
+        <pre id="analytics-low-rated-result"></pre>
+      </div>
+
+      <div id="section-promos" class="section-anchor"></div>
 
       <div class="card">
         <div class="tag">POST /promotions</div>
@@ -337,21 +605,50 @@
       </div>
 
       <div class="card">
-        <div class="tag">GET /orders/{id}</div>
-        <h2>Fetch Order by ID</h2>
-        <form id="get-order-form">
-          <label>Order ID</label>
-          <input name="order_id" type="number" min="1" required />
-          <button type="submit">Fetch Order</button>
+        <div class="tag">PUT /promotions/{id}</div>
+        <h2>Update Promotion</h2>
+        <form id="promo-update-form">
+          <label>Promotion ID</label>
+          <input name="id" type="number" min="1" required />
+          <label>Promo Code (optional)</label>
+          <input name="promo_code" placeholder="Leave blank to keep" />
+          <label>Discount Percent (optional)</label>
+          <input name="discount_percent" type="number" step="0.01" min="0" placeholder="Leave blank to keep" />
+          <label>Expiration Date (YYYY-MM-DD, optional)</label>
+          <input name="expiration_date" placeholder="YYYY-MM-DD" />
+          <button type="submit">Update Promotion</button>
         </form>
-        <div class="status" id="get-order-status"></div>
-        <pre id="get-order-result"></pre>
+        <div class="status" id="promo-update-status"></div>
+        <pre id="promo-update-result"></pre>
       </div>
+
+      <div class="card">
+        <div class="tag">DELETE /promotions/{id}</div>
+        <h2>Delete Promotion</h2>
+        <form id="promo-delete-form">
+          <label>Promotion ID</label>
+          <input name="id" type="number" min="1" required />
+          <button type="submit">Delete Promotion</button>
+        </form>
+        <div class="status" id="promo-delete-status"></div>
+        <pre id="promo-delete-result"></pre>
+      </div>
+
     </div>
 
   <script>
     const API_BASE = "http://localhost:8000";
     const menuSelectIds = ["guest-menu-select"];
+
+    // Smooth scroll for primary actions
+    document.querySelectorAll(".action-button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const targetId = btn.getAttribute("data-target");
+        if (!targetId) return;
+        const el = document.getElementById(targetId);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
 
     const handleSubmit = (formId, statusId, resultId, buildRequest) => {
       const form = document.getElementById(formId);
@@ -364,10 +661,35 @@
           statusEl.className = "status";
           resultEl.textContent = "";
 
-          const { url, options } = buildRequest(new FormData(form));
+          const { url, options, transform, skip } = buildRequest(new FormData(form));
+          if (skip) {
+            statusEl.textContent = "Error";
+            statusEl.className = "status err";
+            resultEl.textContent = JSON.stringify({ detail: skip }, null, 2);
+            return;
+          }
           try {
             const resp = await fetch(url, options);
-            const data = await resp.json();
+            let data = null;
+
+            if (resp.status === 204 || resp.status === 205) {
+              data = { message: "Delete successful" };
+            } else {
+              const text = await resp.text();
+              if (text && text.trim().length > 0) {
+                try {
+                  data = JSON.parse(text);
+                } catch (_) {
+                  data = text;
+                }
+              } else {
+                data = { message: "No content" };
+              }
+            }
+
+            if (typeof transform === "function") {
+              data = transform(data);
+            }
             if (!resp.ok) {
               statusEl.textContent = `Error: ${resp.status}`;
               statusEl.className = "status err";
@@ -391,7 +713,10 @@
         (fd) => {
           const payload = {
             guest_name: fd.get("guest_name"),
+            guest_email: fd.get("guest_email") || null,
             guest_phone: fd.get("guest_phone") || null,
+            description: fd.get("description") || null,
+            order_type: fd.get("order_type") || "takeout",
             items: [
               {
                 menu_item_id: Number(fd.get("menu_item_id")),
@@ -409,11 +734,109 @@
             },
           };
         }
-    );
+      );
 
-    handleSubmit(
-      "notification-test-form",
-      "notification-test-status",
+      handleSubmit(
+        "menu-create-form",
+        "menu-create-status",
+        "menu-create-result",
+        (fd) => {
+          const payload = {
+            name: fd.get("name"),
+            description: fd.get("description"),
+            category: fd.get("category"),
+            price: Number(fd.get("price")),
+            calories: Number(fd.get("calories")),
+            stock: Number(fd.get("stock")),
+          };
+          return {
+            url: `${API_BASE}/menu`,
+            options: {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            },
+          };
+        }
+      );
+
+      handleSubmit(
+        "menu-list-form",
+        "menu-list-status",
+        "menu-list-result",
+        (fd) => {
+          const category = fd.get("category");
+          const url = category
+            ? `${API_BASE}/menu/filter?category=${encodeURIComponent(category)}`
+            : `${API_BASE}/menu`;
+          return {
+            url,
+            options: { method: "GET" },
+          };
+        }
+      );
+
+      handleSubmit(
+        "menu-get-form",
+        "menu-get-status",
+        "menu-get-result",
+        (fd) => {
+          const nameQuery = (fd.get("item_name") || "").trim().toLowerCase();
+          return {
+            url: `${API_BASE}/menu`,
+            options: { method: "GET" },
+            transform: (data) => {
+              if (!Array.isArray(data)) return data;
+              const matches = data.filter((item) =>
+                String(item.name || "").toLowerCase().includes(nameQuery)
+              );
+              return matches;
+            },
+          };
+        }
+      );
+
+      handleSubmit(
+        "menu-update-form",
+        "menu-update-status",
+        "menu-update-result",
+        (fd) => {
+          const id = Number(fd.get("item_id"));
+          const payload = {
+            name: fd.get("name"),
+            description: fd.get("description"),
+            category: fd.get("category"),
+            price: Number(fd.get("price")),
+            calories: Number(fd.get("calories")),
+            stock: Number(fd.get("stock")),
+          };
+          return {
+            url: `${API_BASE}/menu/${id}`,
+            options: {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            },
+          };
+        }
+      );
+
+      handleSubmit(
+        "menu-delete-form",
+        "menu-delete-status",
+        "menu-delete-result",
+        (fd) => {
+          const id = Number(fd.get("item_id"));
+          return {
+            url: `${API_BASE}/menu/${id}`,
+            options: { method: "DELETE" },
+          };
+        }
+      );
+
+      handleSubmit(
+        "notification-test-form",
+        "notification-test-status",
         "notification-test-result",
         (fd) => {
           const orderIdRaw = fd.get("order_id");
@@ -497,27 +920,66 @@
       });
 
       handleSubmit(
-        "get-order-form",
-        "get-order-status",
-        "get-order-result",
+        "payment-by-user-form",
+        "payment-by-user-status",
+        "payment-by-user-result",
         (fd) => {
-          const id = Number(fd.get("order_id"));
+          const id = Number(fd.get("payment_id"));
+          const username = fd.get("username");
+          const qs = `?payment_id=${encodeURIComponent(id)}&username=${encodeURIComponent(
+            username
+          )}`;
           return {
-            url: `${API_BASE}/orders/${id}`,
+            url: `${API_BASE}/payments/by-user${qs}`,
             options: { method: "GET" },
           };
         }
       );
 
       handleSubmit(
-        "payment-get-form",
-        "payment-get-status",
-        "payment-get-result",
+        "guest-update-form",
+        "guest-update-status",
+        "guest-update-result",
         (fd) => {
-          const id = Number(fd.get("payment_id"));
+          const id = Number(fd.get("order_id"));
+          const payload = {};
+          const guestName = fd.get("guest_name");
+          const guestEmail = fd.get("guest_email");
+          const guestPhone = fd.get("guest_phone");
+          const description = fd.get("description");
+          const orderType = fd.get("order_type");
+          if (guestName) payload.guest_name = guestName;
+          if (guestEmail) payload.guest_email = guestEmail;
+          if (guestPhone) payload.guest_phone = guestPhone;
+          if (description) payload.description = description;
+          if (orderType) payload.order_type = orderType;
+          if (Object.keys(payload).length === 0) {
+            return {
+              url: "",
+              options: {},
+              skip: "Provide guest_name, guest_email, guest_phone, description, or order_type to update.",
+            };
+          }
           return {
-            url: `${API_BASE}/payments/${id}`,
-            options: { method: "GET" },
+            url: `${API_BASE}/orders/guest/${id}`,
+            options: {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            },
+          };
+        }
+      );
+
+      handleSubmit(
+        "guest-delete-form",
+        "guest-delete-status",
+        "guest-delete-result",
+        (fd) => {
+          const id = Number(fd.get("order_id"));
+          return {
+            url: `${API_BASE}/orders/${id}`,
+            options: { method: "DELETE" },
           };
         }
       );
@@ -564,7 +1026,13 @@
         "orders-list-result",
         (fd) => {
           const userId = fd.get("user_id");
-          const qs = userId ? `?user_id=${encodeURIComponent(userId)}` : "";
+          const start = fd.get("start_date");
+          const end = fd.get("end_date");
+          const params = new URLSearchParams();
+          if (userId) params.append("user_id", userId);
+          if (start) params.append("start_date", start);
+          if (end) params.append("end_date", end);
+          const qs = params.toString() ? `?${params.toString()}` : "";
           return {
             url: `${API_BASE}/orders${qs}`,
             options: { method: "GET" },
@@ -604,6 +1072,50 @@
       );
 
       handleSubmit(
+        "promo-update-form",
+        "promo-update-status",
+        "promo-update-result",
+        (fd) => {
+          const id = Number(fd.get("id"));
+          const payload = {};
+          const promoCode = fd.get("promo_code");
+          const discount = fd.get("discount_percent");
+          const expiration = fd.get("expiration_date");
+          if (promoCode) payload.promo_code = promoCode;
+          if (discount) payload.discount_percent = Number(discount);
+          if (expiration) payload.expiration_date = expiration;
+          if (Object.keys(payload).length === 0) {
+            return {
+              url: "",
+              options: {},
+              skip: "Provide at least one field to update.",
+            };
+          }
+          return {
+            url: `${API_BASE}/promotions/${id}`,
+            options: {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            },
+          };
+        }
+      );
+
+      handleSubmit(
+        "promo-delete-form",
+        "promo-delete-status",
+        "promo-delete-result",
+        (fd) => {
+          const id = Number(fd.get("id"));
+          return {
+            url: `${API_BASE}/promotions/${id}`,
+            options: { method: "DELETE" },
+          };
+        }
+      );
+
+      handleSubmit(
         "analytics-sales-form",
         "analytics-sales-status",
         "analytics-sales-result",
@@ -611,6 +1123,24 @@
           url: `${API_BASE}/analytics/sales`,
           options: { method: "GET" },
         })
+      );
+
+      handleSubmit(
+        "analytics-sales-range-form",
+        "analytics-sales-range-status",
+        "analytics-sales-range-result",
+        (fd) => {
+          const start = fd.get("start_date");
+          const end = fd.get("end_date");
+          const params = new URLSearchParams();
+          if (start) params.append("start_date", start);
+          if (end) params.append("end_date", end);
+          const qs = params.toString() ? `?${params.toString()}` : "";
+          return {
+            url: `${API_BASE}/analytics/sales-range${qs}`,
+            options: { method: "GET" },
+          };
+        }
       );
 
       handleSubmit(
@@ -623,6 +1153,90 @@
           return {
             url: `${API_BASE}/analytics/popular-items${qs}`,
             options: { method: "GET" },
+          };
+        }
+      );
+
+      handleSubmit(
+        "analytics-low-rated-form",
+        "analytics-low-rated-status",
+        "analytics-low-rated-result",
+        (fd) => {
+          const maxRating = fd.get("max_rating") || 2;
+          const qs = `?max_rating=${encodeURIComponent(maxRating)}`;
+          return {
+            url: `${API_BASE}/analytics/low-rated${qs}`,
+            options: { method: "GET" },
+          };
+        }
+      );
+
+      handleSubmit(
+        "review-create-form",
+        "review-create-status",
+        "review-create-result",
+        (fd) => {
+          const payload = {
+            user_id: Number(fd.get("user_id")),
+            menu_item_id: Number(fd.get("menu_item_id")),
+            rating: Number(fd.get("rating")),
+            comment: fd.get("comment") || null,
+          };
+          return {
+            url: `${API_BASE}/reviews`,
+            options: {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            },
+          };
+        }
+      );
+
+      handleSubmit(
+        "review-list-form",
+        "review-list-status",
+        "review-list-result",
+        () => ({
+          url: `${API_BASE}/reviews`,
+          options: { method: "GET" },
+        })
+      );
+
+      handleSubmit(
+        "review-update-form",
+        "review-update-status",
+        "review-update-result",
+        (fd) => {
+          const id = Number(fd.get("id"));
+          const payload = {};
+          const rating = fd.get("rating");
+          const comment = fd.get("comment");
+          if (rating) payload.rating = Number(rating);
+          if (comment) payload.comment = comment;
+          if (Object.keys(payload).length === 0) {
+            return { url: "", options: {}, skip: "Provide rating or comment to update." };
+          }
+          return {
+            url: `${API_BASE}/reviews/${id}`,
+            options: {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            },
+          };
+        }
+      );
+
+      handleSubmit(
+        "review-delete-form",
+        "review-delete-status",
+        "review-delete-result",
+        (fd) => {
+          const id = Number(fd.get("id"));
+          return {
+            url: `${API_BASE}/reviews/${id}`,
+            options: { method: "DELETE" },
           };
         }
       );

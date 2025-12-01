@@ -15,3 +15,18 @@ def create_promotion(request: schema.PromotionCreate, db: Session = Depends(get_
 @router.get("/", response_model=list[schema.PromotionResponse])
 def list_promotions(db: Session = Depends(get_db)):
     return controller.read_all(db=db)
+
+
+@router.get("/{id}", response_model=schema.PromotionResponse)
+def read_promotion(id: int, db: Session = Depends(get_db)):
+    return controller.read_one(db=db, item_id=id)
+
+
+@router.put("/{id}", response_model=schema.PromotionResponse)
+def update_promotion(id: int, request: schema.PromotionUpdate, db: Session = Depends(get_db)):
+    return controller.update(db=db, item_id=id, request=request)
+
+
+@router.delete("/{id}")
+def delete_promotion(id: int, db: Session = Depends(get_db)):
+    return controller.delete(db=db, item_id=id)

@@ -29,7 +29,7 @@ def read_menu_item(item_id: int, db: Session = Depends(get_db)):
 
 @router.put("/{item_id}", response_model=schema.MenuItemResponse)
 def update_menu_item(
-    item_id: int, request: schema.MenuItemCreate, db: Session = Depends(get_db)
+    item_id: int, request: schema.MenuItemUpdate, db: Session = Depends(get_db)
 ):
     return controller.update(db=db, item_id=item_id, request=request)
 
