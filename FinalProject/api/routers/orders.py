@@ -39,6 +39,11 @@ def track_order(tracking_number: str, db: Session = Depends(get_db)):
     return controller.track_by_number(db=db, tracking_number=tracking_number)
 
 
+@router.get("/track", response_model=order_schema.OrderResponse)
+def track_order_with_name(tracking_number: str, name: str | None = None, db: Session = Depends(get_db)):
+    return controller.track_by_tracking_and_name(db=db, tracking_number=tracking_number, name=name)
+
+
 @router.get("/{item_id}", response_model=order_schema.OrderResponse)
 def read_one(item_id: int, db: Session = Depends(get_db)):
     return controller.read_one(db, item_id=item_id)

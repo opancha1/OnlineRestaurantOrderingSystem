@@ -1,116 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Simple Order & Payment UI</title>
-  <style>
-    :root {
-      --bg: #0f172a;
-      --panel: #111827;
-      --accent: #22d3ee;
-      --text: #e2e8f0;
-      --muted: #94a3b8;
-      --danger: #f43f5e;
-      --success: #22c55e;
-    }
-    * { box-sizing: border-box; }
-    body {
-      font-family: "Inter", system-ui, -apple-system, sans-serif;
-      background: radial-gradient(circle at 20% 20%, rgba(34,211,238,0.08), transparent 35%),
-                  radial-gradient(circle at 80% 0%, rgba(244,63,94,0.08), transparent 35%),
-                  var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 24px;
-      display: flex;
-      justify-content: center;
-    }
-    .layout {
-      width: min(1100px, 100%);
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 16px;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <title>Restaurant Ordering System UI</title>
+    <style>
+      :root {
+        --bg: #f5f7fb;
+        --panel: #ffffff;
+        --accent: #2563eb;
+        --accent-soft: #e0e7ff;
+        --text: #0f172a;
+        --muted: #475569;
+        --border: #e2e8f0;
+        --danger: #e11d48;
+        --success: #16a34a;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        background: radial-gradient(
+            circle at 15% 20%,
+            rgba(37, 99, 235, 0.12),
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 85% 10%,
+            rgba(16, 185, 129, 0.12),
+            transparent 35%
+          ),
+          var(--bg);
+        color: var(--text);
+        margin: 0;
+        padding: 28px;
+        display: flex;
+        justify-content: center;
+      }
+      .layout {
+        width: min(1180px, 100%);
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 18px;
+      }
     .card {
       background: var(--panel);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+      font-size: 15px;
     }
-    h1 {
-      grid-column: 1 / -1;
-      margin: 0 0 8px;
-      font-size: 28px;
-      letter-spacing: -0.02em;
-    }
+      h1 {
+        grid-column: 1 / -1;
+        margin: 0 0 12px;
+        font-size: 32px;
+        letter-spacing: -0.02em;
+      }
     h2 {
-      margin: 0 0 12px;
-      font-size: 18px;
+      margin: 0 0 14px;
+      font-size: 19px;
       color: var(--muted);
       letter-spacing: 0.01em;
       text-transform: uppercase;
     }
     label {
       display: block;
-      font-size: 13px;
+      font-size: 15px;
       color: var(--muted);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
-    input, select, textarea {
-      width: 100%;
-      background: #0b1221;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 8px;
-      padding: 10px 12px;
-      color: var(--text);
-      margin-bottom: 10px;
-      font-size: 14px;
-    }
-    textarea { min-height: 80px; resize: vertical; }
-    button {
-      width: 100%;
-      background: var(--accent);
-      color: #0b1221;
-      border: none;
-      border-radius: 10px;
-      padding: 12px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      cursor: pointer;
-      transition: transform 0.08s ease, box-shadow 0.08s ease;
-      box-shadow: 0 10px 30px rgba(34, 211, 238, 0.3);
-    }
-    button:hover { transform: translateY(-1px); }
-    button:active { transform: translateY(0); }
-    pre {
-      background: #0b1221;
-      border-radius: 8px;
-      padding: 12px;
-      white-space: pre-wrap;
-      word-break: break-word;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      font-size: 13px;
-      min-height: 80px;
-    }
-    .tag {
-      display: inline-block;
-      background: rgba(34, 211, 238, 0.15);
-      color: var(--accent);
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 12px;
-      margin-bottom: 12px;
-      letter-spacing: 0.02em;
-    }
-    .status { color: var(--muted); font-size: 13px; min-height: 18px; }
-    .status.ok { color: var(--success); }
-    .status.err { color: var(--danger); }
-  </style>
-</head>
-<body>
-  <div class="layout">
-    <h1>Simple Order & Payment Console</h1>
+      input,
+      select,
+      textarea {
+        width: 100%;
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px 14px;
+        color: var(--text);
+        margin-bottom: 14px;
+      font-size: 16px;
+        transition: border-color 0.1s ease, box-shadow 0.1s ease;
+      }
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-soft);
+      }
+      textarea {
+        min-height: 80px;
+        resize: vertical;
+      }
+      button {
+        width: 100%;
+        background: var(--accent);
+        color: #ffffff;
+        border: none;
+        border-radius: 12px;
+        padding: 14px;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        cursor: pointer;
+        transition: transform 0.08s ease, box-shadow 0.08s ease;
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
+      }
+      button:hover {
+        transform: translateY(-1px);
+      }
+      button:active {
+        transform: translateY(0);
+      }
+      pre {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+        border: 1px solid var(--border);
+      font-size: 15px;
+        min-height: 80px;
+      }
+      .tag {
+        display: inline-block;
+        background: var(--accent-soft);
+        color: var(--accent);
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        margin-bottom: 12px;
+        letter-spacing: 0.02em;
+        font-weight: 600;
+      }
+      .status {
+        color: var(--muted);
+        font-size: 13px;
+        min-height: 18px;
+      }
+      .status.ok {
+        color: var(--success);
+      }
+      .status.err {
+        color: var(--danger);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <h1>Restaurant Ordering System UI</h1>
 
     <div class="card">
       <div class="tag">POST /orders/guest</div>
@@ -122,128 +161,114 @@
         <input name="guest_phone" />
         <label>Promo Code (optional)</label>
         <input name="promo_code" />
-        <label>Menu Item ID</label>
-        <input name="menu_item_id" type="number" min="1" required />
+        <label>Menu Item</label>
+        <select name="menu_item_id" id="guest-menu-select" required>
+          <option value="" disabled selected>Loading menu...</option>
+        </select>
         <label>Quantity</label>
         <input name="quantity" type="number" min="1" value="1" required />
         <button type="submit">Create Guest Order</button>
       </form>
       <div class="status" id="guest-order-status"></div>
-      <pre id="guest-order-result"></pre>
-    </div>
+        <pre id="guest-order-result"></pre>
+      </div>
 
     <div class="card">
-      <div class="tag">POST /orders</div>
-      <h2>Create User Order</h2>
-      <form id="user-order-form">
-        <label>User ID</label>
-        <input name="user_id" type="number" min="1" required />
-        <label>Promo Code (optional)</label>
-        <input name="promo_code" />
-        <label>Menu Item ID</label>
-        <input name="menu_item_id" type="number" min="1" required />
-        <label>Quantity</label>
-        <input name="quantity" type="number" min="1" value="1" required />
-        <button type="submit">Create User Order</button>
-      </form>
-      <div class="status" id="user-order-status"></div>
-      <pre id="user-order-result"></pre>
-    </div>
-
-    <div class="card">
-      <div class="tag">GET /orders/track/{tracking}</div>
+      <div class="tag">GET /orders/track</div>
       <h2>Track Order</h2>
       <form id="track-form">
         <label>Tracking Number</label>
         <input name="tracking_number" required />
+        <label>Guest Name (optional)</label>
+        <input name="guest_name" placeholder="Matches the name on the order" />
         <button type="submit">Track Order</button>
       </form>
       <div class="status" id="track-status"></div>
       <pre id="track-result"></pre>
     </div>
 
-    <div class="card">
-      <div class="tag">POST /payments</div>
-      <h2>Create Payment</h2>
-      <form id="payment-form">
-        <label>Order ID</label>
-        <input name="order_id" type="number" min="1" required />
-        <label>Payment Type</label>
-        <input name="payment_type" placeholder="Card / Cash / UPI" required />
-        <label>Transaction Status</label>
-        <select name="transaction_status" required>
-          <option value="Pending">Pending</option>
-          <option value="Success">Success</option>
-          <option value="Failed">Failed</option>
-        </select>
-        <label>Amount</label>
-        <input name="amount" type="number" step="0.01" min="0" required />
-        <button type="submit">Submit Payment</button>
-      </form>
-      <div class="status" id="payment-status"></div>
-      <pre id="payment-result"></pre>
-    </div>
+      <div class="card">
+        <div class="tag">POST /payments</div>
+        <h2>Create Payment</h2>
+        <form id="payment-form">
+          <label>Order ID</label>
+          <input name="order_id" type="number" min="1" required />
+          <label>Payment Type</label>
+          <input name="payment_type" placeholder="Card / Cash / UPI" required />
+          <label>Transaction Status</label>
+          <select name="transaction_status" required>
+            <option value="Pending">Pending</option>
+            <option value="Success">Success</option>
+            <option value="Failed">Failed</option>
+          </select>
+          <label>Amount</label>
+          <input name="amount" type="number" step="0.01" min="0" required />
+          <button type="submit">Submit Payment</button>
+        </form>
+        <div class="status" id="payment-status"></div>
+        <pre id="payment-result"></pre>
+      </div>
 
-    <div class="card">
-      <div class="tag">POST /notifications/test</div>
-      <h2>Send Test Notification</h2>
-      <form id="notification-test-form">
-        <label>Order ID (optional)</label>
-        <input name="order_id" type="number" min="1" />
-        <label>Message</label>
-        <input name="message" value="Test notification" required />
-        <button type="submit">Send Notification</button>
-      </form>
-      <div class="status" id="notification-test-status"></div>
-      <pre id="notification-test-result"></pre>
-    </div>
+      <div class="card">
+        <div class="tag">POST /notifications/test</div>
+        <h2>Send Test Notification</h2>
+        <form id="notification-test-form">
+          <label>Order ID (optional)</label>
+          <input name="order_id" type="number" min="1" />
+          <label>Message</label>
+          <input name="message" value="Test notification" required />
+          <button type="submit">Send Notification</button>
+        </form>
+        <div class="status" id="notification-test-status"></div>
+        <pre id="notification-test-result"></pre>
+      </div>
 
-    <div class="card">
-      <div class="tag">PUT /payments/{id}</div>
-      <h2>Update Payment</h2>
-      <form id="payment-update-form">
-        <label>Payment ID</label>
-        <input name="payment_id" type="number" min="1" required />
-        <label>Payment Type</label>
-        <input name="payment_type" placeholder="Optional" />
-        <label>Transaction Status</label>
-        <select name="transaction_status">
-          <option value="">(no change)</option>
-          <option value="Pending">Pending</option>
-          <option value="Success">Success</option>
-          <option value="Failed">Failed</option>
-        </select>
-        <label>Amount</label>
-        <input name="amount" type="number" step="0.01" min="0" />
-        <button type="submit">Update Payment</button>
-      </form>
-      <div class="status" id="payment-update-status"></div>
-      <pre id="payment-update-result"></pre>
-    </div>
+      <div class="card">
+        <div class="tag">PUT /payments/{id}</div>
+        <h2>Update Payment</h2>
+        <form id="payment-update-form">
+          <label>Payment ID</label>
+          <input name="payment_id" type="number" min="1" required />
+          <label>Payment Type</label>
+          <input name="payment_type" placeholder="Optional" />
+          <label>Transaction Status</label>
+          <select name="transaction_status">
+            <option value="">(no change)</option>
+            <option value="Pending">Pending</option>
+            <option value="Success">Success</option>
+            <option value="Failed">Failed</option>
+          </select>
+          <label>Amount</label>
+          <input name="amount" type="number" step="0.01" min="0" />
+          <button type="submit">Update Payment</button>
+        </form>
+        <div class="status" id="payment-update-status"></div>
+        <pre id="payment-update-result"></pre>
+      </div>
 
-    <div class="card">
-      <div class="tag">GET /payments/{id}</div>
-      <h2>Get Payment</h2>
-      <form id="payment-get-form">
-        <label>Payment ID</label>
-        <input name="payment_id" type="number" min="1" required />
-        <button type="submit">Fetch Payment</button>
-      </form>
-      <div class="status" id="payment-get-status"></div>
-      <pre id="payment-get-result"></pre>
-    </div>
+      <div class="card">
+        <div class="tag">GET /payments/{id}</div>
+        <h2>Get Payment</h2>
+        <form id="payment-get-form">
+          <label>Payment ID</label>
+          <input name="payment_id" type="number" min="1" required />
+          <button type="submit">Fetch Payment</button>
+        </form>
+        <div class="status" id="payment-get-status"></div>
+        <pre id="payment-get-result"></pre>
+      </div>
 
-    <div class="card">
-      <div class="tag">DELETE /payments/{id}</div>
-      <h2>Delete Payment</h2>
-      <form id="payment-delete-form">
-        <label>Payment ID</label>
-        <input name="payment_id" type="number" min="1" required />
-        <button type="submit">Delete Payment</button>
-      </form>
-      <div class="status" id="payment-delete-status"></div>
-      <pre id="payment-delete-result"></pre>
-    </div>
+      <div class="card">
+        <div class="tag">DELETE /payments/{id}</div>
+        <h2>Delete Payment</h2>
+        <form id="payment-delete-form">
+          <label>Payment ID</label>
+          <input name="payment_id" type="number" min="1" required />
+          <button type="submit">Delete Payment</button>
+        </form>
+        <div class="status" id="payment-delete-status"></div>
+        <pre id="payment-delete-result"></pre>
+      </div>
 
     <div class="card">
       <div class="tag">GET /orders</div>
@@ -257,193 +282,204 @@
       <pre id="orders-list-result"></pre>
     </div>
 
-    <div class="card">
-      <div class="tag">GET /analytics/sales</div>
-      <h2>Sales Summary</h2>
-      <form id="analytics-sales-form">
-        <button type="submit">Fetch Sales</button>
-      </form>
-      <div class="status" id="analytics-sales-status"></div>
-      <pre id="analytics-sales-result"></pre>
-    </div>
+      <div class="card">
+        <div class="tag">GET /analytics/sales</div>
+        <h2>Sales Summary</h2>
+        <form id="analytics-sales-form">
+          <button type="submit">Fetch Sales</button>
+        </form>
+        <div class="status" id="analytics-sales-status"></div>
+        <pre id="analytics-sales-result"></pre>
+      </div>
 
-    <div class="card">
-      <div class="tag">GET /analytics/popular-items</div>
-      <h2>Popular Items</h2>
-      <form id="analytics-popular-form">
-        <label>Limit</label>
-        <input name="limit" type="number" min="1" value="10" />
-        <button type="submit">Fetch Popular Items</button>
-      </form>
-      <div class="status" id="analytics-popular-status"></div>
-      <pre id="analytics-popular-result"></pre>
-    </div>
+      <div class="card">
+        <div class="tag">GET /analytics/popular-items</div>
+        <h2>Popular Items</h2>
+        <form id="analytics-popular-form">
+          <label>Limit</label>
+          <input name="limit" type="number" min="1" value="10" />
+          <button type="submit">Fetch Popular Items</button>
+        </form>
+        <div class="status" id="analytics-popular-status"></div>
+        <pre id="analytics-popular-result"></pre>
+      </div>
 
-    <div class="card">
-      <div class="tag">POST /promotions</div>
-      <h2>Create Promotion</h2>
-      <form id="promo-create-form">
-        <label>Promo Code</label>
-        <input name="promo_code" required />
-        <label>Discount Percent</label>
-        <input name="discount_percent" type="number" step="0.01" min="0" required />
-        <label>Expiration Date (YYYY-MM-DD, optional)</label>
-        <input name="expiration_date" placeholder="YYYY-MM-DD" />
-        <button type="submit">Create Promotion</button>
-      </form>
-      <div class="status" id="promo-create-status"></div>
-      <pre id="promo-create-result"></pre>
-    </div>
+      <div class="card">
+        <div class="tag">POST /promotions</div>
+        <h2>Create Promotion</h2>
+        <form id="promo-create-form">
+          <label>Promo Code</label>
+          <input name="promo_code" required />
+          <label>Discount Percent</label>
+          <input
+            name="discount_percent"
+            type="number"
+            step="0.01"
+            min="0"
+            required
+          />
+          <label>Expiration Date (YYYY-MM-DD, optional)</label>
+          <input name="expiration_date" placeholder="YYYY-MM-DD" />
+          <button type="submit">Create Promotion</button>
+        </form>
+        <div class="status" id="promo-create-status"></div>
+        <pre id="promo-create-result"></pre>
+      </div>
 
-    <div class="card">
-      <div class="tag">GET /promotions</div>
-      <h2>List Promotions</h2>
-      <form id="promo-list-form">
-        <button type="submit">Fetch Promotions</button>
-      </form>
-      <div class="status" id="promo-list-status"></div>
-      <pre id="promo-list-result"></pre>
-    </div>
+      <div class="card">
+        <div class="tag">GET /promotions</div>
+        <h2>List Promotions</h2>
+        <form id="promo-list-form">
+          <button type="submit">Fetch Promotions</button>
+        </form>
+        <div class="status" id="promo-list-status"></div>
+        <pre id="promo-list-result"></pre>
+      </div>
 
-    <div class="card">
-      <div class="tag">GET /orders/{id}</div>
-      <h2>Fetch Order by ID</h2>
-      <form id="get-order-form">
-        <label>Order ID</label>
-        <input name="order_id" type="number" min="1" required />
-        <button type="submit">Fetch Order</button>
-      </form>
-      <div class="status" id="get-order-status"></div>
-      <pre id="get-order-result"></pre>
+      <div class="card">
+        <div class="tag">GET /orders/{id}</div>
+        <h2>Fetch Order by ID</h2>
+        <form id="get-order-form">
+          <label>Order ID</label>
+          <input name="order_id" type="number" min="1" required />
+          <button type="submit">Fetch Order</button>
+        </form>
+        <div class="status" id="get-order-status"></div>
+        <pre id="get-order-result"></pre>
+      </div>
     </div>
-  </div>
 
   <script>
     const API_BASE = "http://localhost:8000";
+    const menuSelectIds = ["guest-menu-select"];
 
     const handleSubmit = (formId, statusId, resultId, buildRequest) => {
       const form = document.getElementById(formId);
       const statusEl = document.getElementById(statusId);
       const resultEl = document.getElementById(resultId);
 
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        statusEl.textContent = "Working...";
-        statusEl.className = "status";
-        resultEl.textContent = "";
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          statusEl.textContent = "Working...";
+          statusEl.className = "status";
+          resultEl.textContent = "";
 
-        const { url, options } = buildRequest(new FormData(form));
-        try {
-          const resp = await fetch(url, options);
-          const data = await resp.json();
-          if (!resp.ok) {
-            statusEl.textContent = `Error: ${resp.status}`;
+          const { url, options } = buildRequest(new FormData(form));
+          try {
+            const resp = await fetch(url, options);
+            const data = await resp.json();
+            if (!resp.ok) {
+              statusEl.textContent = `Error: ${resp.status}`;
+              statusEl.className = "status err";
+            } else {
+              statusEl.textContent = "Success";
+              statusEl.className = "status ok";
+            }
+            resultEl.textContent = JSON.stringify(data, null, 2);
+          } catch (err) {
+            statusEl.textContent = "Network error";
             statusEl.className = "status err";
-          } else {
-            statusEl.textContent = "Success";
-            statusEl.className = "status ok";
+            resultEl.textContent = err.message;
           }
-          resultEl.textContent = JSON.stringify(data, null, 2);
-        } catch (err) {
-          statusEl.textContent = "Network error";
-          statusEl.className = "status err";
-          resultEl.textContent = err.message;
-        }
-      });
-    };
+        });
+      };
 
-    handleSubmit(
-      "guest-order-form",
-      "guest-order-status",
-      "guest-order-result",
-      (fd) => {
-        const payload = {
-          guest_name: fd.get("guest_name"),
-          guest_phone: fd.get("guest_phone") || null,
-          items: [
-            {
-              menu_item_id: Number(fd.get("menu_item_id")),
-              quantity: Number(fd.get("quantity")),
+      handleSubmit(
+        "guest-order-form",
+        "guest-order-status",
+        "guest-order-result",
+        (fd) => {
+          const payload = {
+            guest_name: fd.get("guest_name"),
+            guest_phone: fd.get("guest_phone") || null,
+            items: [
+              {
+                menu_item_id: Number(fd.get("menu_item_id")),
+                quantity: Number(fd.get("quantity")),
+              },
+            ],
+            promo_code: fd.get("promo_code") || null,
+          };
+          return {
+            url: `${API_BASE}/orders/guest`,
+            options: {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
             },
-          ],
-          promo_code: fd.get("promo_code") || null,
-        };
-        return {
-          url: `${API_BASE}/orders/guest`,
-          options: {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          },
-        };
-      }
+          };
+        }
     );
 
     handleSubmit(
       "notification-test-form",
       "notification-test-status",
-      "notification-test-result",
-      (fd) => {
-        const orderIdRaw = fd.get("order_id");
-        const payload = {
-          message: fd.get("message"),
-          order_id: orderIdRaw ? Number(orderIdRaw) : null,
-        };
-        return {
-          url: `${API_BASE}/notifications/test`,
-          options: {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          },
-        };
-      }
-    );
-
-    handleSubmit(
-      "user-order-form",
-      "user-order-status",
-      "user-order-result",
-      (fd) => {
-        const payload = {
-          user_id: Number(fd.get("user_id")),
-          items: [
-            {
-              menu_item_id: Number(fd.get("menu_item_id")),
-              quantity: Number(fd.get("quantity")),
+        "notification-test-result",
+        (fd) => {
+          const orderIdRaw = fd.get("order_id");
+          const payload = {
+            message: fd.get("message"),
+            order_id: orderIdRaw ? Number(orderIdRaw) : null,
+          };
+          return {
+            url: `${API_BASE}/notifications/test`,
+            options: {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
             },
-          ],
-          promo_code: fd.get("promo_code") || null,
-        };
-        return {
-          url: `${API_BASE}/orders`,
-          options: {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          },
         };
       }
     );
 
-    handleSubmit(
-      "track-form",
-      "track-status",
-      "track-result",
-      (fd) => {
-        const tracking = encodeURIComponent(fd.get("tracking_number"));
-        return {
-          url: `${API_BASE}/orders/track/${tracking}`,
-          options: { method: "GET" },
-        };
+    // Populate menu dropdowns from API
+    const populateMenu = async () => {
+      try {
+        const resp = await fetch(`${API_BASE}/menu`);
+        const data = await resp.json();
+        menuSelectIds.forEach((id) => {
+          const sel = document.getElementById(id);
+          if (!sel) return;
+          sel.innerHTML = "";
+          if (!resp.ok || !Array.isArray(data) || data.length === 0) {
+            sel.innerHTML = `<option disabled selected>Menu unavailable</option>`;
+            return;
+          }
+          const placeholder = document.createElement("option");
+          placeholder.value = "";
+          placeholder.disabled = true;
+          placeholder.selected = true;
+          placeholder.textContent = "Select a menu item";
+          sel.appendChild(placeholder);
+          data.forEach((item) => {
+            const opt = document.createElement("option");
+            opt.value = item.id;
+            opt.textContent = `${item.name} ($${Number(item.price).toFixed(2)})`;
+            sel.appendChild(opt);
+          });
+        });
+      } catch (e) {
+        menuSelectIds.forEach((id) => {
+          const sel = document.getElementById(id);
+          if (sel) sel.innerHTML = `<option disabled selected>Menu load failed</option>`;
+        });
       }
-    );
+    };
+    populateMenu();
 
-    handleSubmit(
-      "payment-form",
-      "payment-status",
-      "payment-result",
-      (fd) => {
+    handleSubmit("track-form", "track-status", "track-result", (fd) => {
+      const tracking = encodeURIComponent(fd.get("tracking_number"));
+      const name = fd.get("guest_name");
+      const qs = name
+        ? `?tracking_number=${tracking}&name=${encodeURIComponent(name)}`
+        : `?tracking_number=${tracking}`;
+      return {
+        url: `${API_BASE}/orders/track${qs}`,
+        options: { method: "GET" },
+      };
+    });
+
+      handleSubmit("payment-form", "payment-status", "payment-result", (fd) => {
         const payload = {
           order_id: Number(fd.get("order_id")),
           payment_type: fd.get("payment_type"),
@@ -458,137 +494,138 @@
             body: JSON.stringify(payload),
           },
         };
-      }
-    );
+      });
 
-    handleSubmit(
-      "get-order-form",
-      "get-order-status",
-      "get-order-result",
-      (fd) => {
-        const id = Number(fd.get("order_id"));
-        return {
-          url: `${API_BASE}/orders/${id}`,
-          options: { method: "GET" },
-        };
-      }
-    );
+      handleSubmit(
+        "get-order-form",
+        "get-order-status",
+        "get-order-result",
+        (fd) => {
+          const id = Number(fd.get("order_id"));
+          return {
+            url: `${API_BASE}/orders/${id}`,
+            options: { method: "GET" },
+          };
+        }
+      );
 
-    handleSubmit(
-      "payment-get-form",
-      "payment-get-status",
-      "payment-get-result",
-      (fd) => {
-        const id = Number(fd.get("payment_id"));
-        return {
-          url: `${API_BASE}/payments/${id}`,
-          options: { method: "GET" },
-        };
-      }
-    );
+      handleSubmit(
+        "payment-get-form",
+        "payment-get-status",
+        "payment-get-result",
+        (fd) => {
+          const id = Number(fd.get("payment_id"));
+          return {
+            url: `${API_BASE}/payments/${id}`,
+            options: { method: "GET" },
+          };
+        }
+      );
 
-    handleSubmit(
-      "payment-update-form",
-      "payment-update-status",
-      "payment-update-result",
-      (fd) => {
-        const id = Number(fd.get("payment_id"));
-        const payload = {};
-        if (fd.get("payment_type")) payload.payment_type = fd.get("payment_type");
-        if (fd.get("transaction_status")) payload.transaction_status = fd.get("transaction_status");
-        if (fd.get("amount")) payload.amount = Number(fd.get("amount"));
-        return {
-          url: `${API_BASE}/payments/${id}`,
-          options: {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          },
-        };
-      }
-    );
+      handleSubmit(
+        "payment-update-form",
+        "payment-update-status",
+        "payment-update-result",
+        (fd) => {
+          const id = Number(fd.get("payment_id"));
+          const payload = {};
+          if (fd.get("payment_type"))
+            payload.payment_type = fd.get("payment_type");
+          if (fd.get("transaction_status"))
+            payload.transaction_status = fd.get("transaction_status");
+          if (fd.get("amount")) payload.amount = Number(fd.get("amount"));
+          return {
+            url: `${API_BASE}/payments/${id}`,
+            options: {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            },
+          };
+        }
+      );
 
-    handleSubmit(
-      "payment-delete-form",
-      "payment-delete-status",
-      "payment-delete-result",
-      (fd) => {
-        const id = Number(fd.get("payment_id"));
-        return {
-          url: `${API_BASE}/payments/${id}`,
-          options: { method: "DELETE" },
-        };
-      }
-    );
+      handleSubmit(
+        "payment-delete-form",
+        "payment-delete-status",
+        "payment-delete-result",
+        (fd) => {
+          const id = Number(fd.get("payment_id"));
+          return {
+            url: `${API_BASE}/payments/${id}`,
+            options: { method: "DELETE" },
+          };
+        }
+      );
 
-    handleSubmit(
-      "orders-list-form",
-      "orders-list-status",
-      "orders-list-result",
-      (fd) => {
-        const userId = fd.get("user_id");
-        const qs = userId ? `?user_id=${encodeURIComponent(userId)}` : "";
-        return {
-          url: `${API_BASE}/orders${qs}`,
-          options: { method: "GET" },
-        };
-      }
-    );
+      handleSubmit(
+        "orders-list-form",
+        "orders-list-status",
+        "orders-list-result",
+        (fd) => {
+          const userId = fd.get("user_id");
+          const qs = userId ? `?user_id=${encodeURIComponent(userId)}` : "";
+          return {
+            url: `${API_BASE}/orders${qs}`,
+            options: { method: "GET" },
+          };
+        }
+      );
 
-    handleSubmit(
-      "promo-create-form",
-      "promo-create-status",
-      "promo-create-result",
-      (fd) => {
-        const payload = {
-          promo_code: fd.get("promo_code"),
-          discount_percent: Number(fd.get("discount_percent")),
-          expiration_date: fd.get("expiration_date") || null,
-        };
-        return {
+      handleSubmit(
+        "promo-create-form",
+        "promo-create-status",
+        "promo-create-result",
+        (fd) => {
+          const payload = {
+            promo_code: fd.get("promo_code"),
+            discount_percent: Number(fd.get("discount_percent")),
+            expiration_date: fd.get("expiration_date") || null,
+          };
+          return {
+            url: `${API_BASE}/promotions`,
+            options: {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            },
+          };
+        }
+      );
+
+      handleSubmit(
+        "promo-list-form",
+        "promo-list-status",
+        "promo-list-result",
+        () => ({
           url: `${API_BASE}/promotions`,
-          options: {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          },
-        };
-      }
-    );
-
-    handleSubmit(
-      "promo-list-form",
-      "promo-list-status",
-      "promo-list-result",
-      () => ({
-        url: `${API_BASE}/promotions`,
-        options: { method: "GET" },
-      })
-    );
-
-    handleSubmit(
-      "analytics-sales-form",
-      "analytics-sales-status",
-      "analytics-sales-result",
-      () => ({
-        url: `${API_BASE}/analytics/sales`,
-        options: { method: "GET" },
-      })
-    );
-
-    handleSubmit(
-      "analytics-popular-form",
-      "analytics-popular-status",
-      "analytics-popular-result",
-      (fd) => {
-        const limit = fd.get("limit");
-        const qs = limit ? `?limit=${encodeURIComponent(limit)}` : "";
-        return {
-          url: `${API_BASE}/analytics/popular-items${qs}`,
           options: { method: "GET" },
-        };
-      }
-    );
-  </script>
-</body>
+        })
+      );
+
+      handleSubmit(
+        "analytics-sales-form",
+        "analytics-sales-status",
+        "analytics-sales-result",
+        () => ({
+          url: `${API_BASE}/analytics/sales`,
+          options: { method: "GET" },
+        })
+      );
+
+      handleSubmit(
+        "analytics-popular-form",
+        "analytics-popular-status",
+        "analytics-popular-result",
+        (fd) => {
+          const limit = fd.get("limit");
+          const qs = limit ? `?limit=${encodeURIComponent(limit)}` : "";
+          return {
+            url: `${API_BASE}/analytics/popular-items${qs}`,
+            options: { method: "GET" },
+          };
+        }
+      );
+    </script>
+  </body>
 </html>

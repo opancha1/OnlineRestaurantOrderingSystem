@@ -136,6 +136,33 @@ def track_by_number(db: Session, tracking_number: str):
     return item
 
 
+def track_by_tracking_and_name(db: Session, tracking_number: str, name: str | None = None):
+    try:
+        query = (
+            db.query(model.Order)
+            .options(
+                joinedload(model.Order.order_details).joinedload(order_detail_model.OrderDetail.menu_item),
+                joinedload(model.Order.payment),
+            )
+            .filter(model.Order.tracking_number == tracking_number)
+        )
+        if name:
+            lowered = name.strip().lower()
+            query = query.filter(
+                func.lower(model.Order.guest_name) == lowered
+            )
+        item = query.first()
+        if not item:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Tracking number (and name, if provided) not found!",
+            )
+    except SQLAlchemyError as e:
+        error = str(e.__dict__["orig"])
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
+    return item
+
+
 def update(db: Session, item_id, request):
     try:
         item = db.query(model.Order).filter(model.Order.id == item_id)
