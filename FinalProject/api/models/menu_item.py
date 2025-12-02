@@ -11,6 +11,7 @@ class MenuItem(Base):
     price = Column(Float, nullable=False)
     category = Column(String(50))
     calories = Column(Integer)
-    stock = Column(Integer, nullable=False, default=0)
+    # When stock is null we treat it as “unlimited” for tests/seeding
+    stock = Column(Integer, nullable=True, default=None)
     order_details = relationship("OrderDetail", back_populates="menu_item")
     reviews = relationship("Review", back_populates="menu_item")

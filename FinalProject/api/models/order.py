@@ -31,3 +31,4 @@ class Order(Base):
         "Notification", back_populates="order", cascade="all, delete-orphan"
     )
     promotion = relationship("Promotion")
+    reviews = relationship("Review", back_populates="order", cascade="all, delete-orphan")

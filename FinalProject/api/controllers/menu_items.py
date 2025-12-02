@@ -11,7 +11,7 @@ def create(db: Session, request):
         price=request.price,
         category=request.category,
         calories=request.calories,
-        stock=request.stock or 0,
+        stock=request.stock,
     )
     try:
         db.add(new_item)

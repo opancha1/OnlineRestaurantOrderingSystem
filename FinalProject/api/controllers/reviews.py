@@ -2,19 +2,28 @@ from fastapi import HTTPException, status
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from ..models import review as review_model
-from ..models import user as user_model
+from ..models import order as order_model
 from ..models import menu_item as menu_model
 from ..schemas import review as review_schema
 
 
 def create(db: Session, request: review_schema.ReviewCreate):
-    # Ensure user and menu item exist
-    if not db.query(user_model.User.id).filter(user_model.User.id == request.user_id).first():
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+    # Order is optional; validate if provided
+    if request.order_id is not None:
+        order_exists = (
+            db.query(order_model.Order.id)
+            .filter(order_model.Order.id == request.order_id)
+            .first()
+        )
+        if not order_exists:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found.")
+
+    # Ensure menu item exists
     if not db.query(menu_model.MenuItem.id).filter(menu_model.MenuItem.id == request.menu_item_id).first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Menu item not found.")
+
     new_item = review_model.Review(
-        user_id=request.user_id,
+        order_id=request.order_id,
         menu_item_id=request.menu_item_id,
         rating=request.rating,
         comment=request.comment,

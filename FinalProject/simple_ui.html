@@ -374,6 +374,16 @@
       </div>
 
       <div class="card">
+        <div class="tag">GET /notifications</div>
+        <h2>List Notifications</h2>
+        <form id="notification-list-form">
+          <button type="submit">Fetch Notifications</button>
+        </form>
+        <div class="status" id="notification-list-status"></div>
+        <pre id="notification-list-result"></pre>
+      </div>
+
+      <div class="card">
         <div class="tag">PUT /payments/{id}</div>
         <h2>Update Payment</h2>
         <form id="payment-update-form">
@@ -424,6 +434,74 @@
       <pre id="orders-list-result"></pre>
     </div>
 
+    <div class="card">
+      <div class="tag">POST /orderdetails</div>
+      <h2>Create Order Detail</h2>
+      <form id="orderdetail-create-form">
+        <label>Order ID</label>
+        <input name="order_id" type="number" min="1" required />
+        <label>Menu Item ID</label>
+        <input name="menu_item_id" type="number" min="1" required />
+        <label>Quantity</label>
+        <input name="quantity" type="number" min="1" value="1" required />
+        <button type="submit">Add Line Item</button>
+      </form>
+      <div class="status" id="orderdetail-create-status"></div>
+      <pre id="orderdetail-create-result"></pre>
+    </div>
+
+    <div class="card">
+      <div class="tag">GET /orderdetails</div>
+      <h2>List Order Details</h2>
+      <form id="orderdetail-list-form">
+        <button type="submit">Fetch All Order Details</button>
+      </form>
+      <div class="status" id="orderdetail-list-status"></div>
+      <pre id="orderdetail-list-result"></pre>
+    </div>
+
+    <div class="card">
+      <div class="tag">GET /orderdetails/{id}</div>
+      <h2>Get Order Detail</h2>
+      <form id="orderdetail-get-form">
+        <label>Order Detail ID</label>
+        <input name="id" type="number" min="1" required />
+        <button type="submit">Fetch Order Detail</button>
+      </form>
+      <div class="status" id="orderdetail-get-status"></div>
+      <pre id="orderdetail-get-result"></pre>
+    </div>
+
+    <div class="card">
+      <div class="tag">PUT /orderdetails/{id}</div>
+      <h2>Update Order Detail</h2>
+      <form id="orderdetail-update-form">
+        <label>Order Detail ID</label>
+        <input name="id" type="number" min="1" required />
+        <label>Order ID (optional)</label>
+        <input name="order_id" type="number" min="1" />
+        <label>Menu Item ID (optional)</label>
+        <input name="menu_item_id" type="number" min="1" />
+        <label>Quantity (optional)</label>
+        <input name="quantity" type="number" min="1" />
+        <button type="submit">Update Order Detail</button>
+      </form>
+      <div class="status" id="orderdetail-update-status"></div>
+      <pre id="orderdetail-update-result"></pre>
+    </div>
+
+    <div class="card">
+      <div class="tag">DELETE /orderdetails/{id}</div>
+      <h2>Delete Order Detail</h2>
+      <form id="orderdetail-delete-form">
+        <label>Order Detail ID</label>
+        <input name="id" type="number" min="1" required />
+        <button type="submit">Delete Order Detail</button>
+      </form>
+      <div class="status" id="orderdetail-delete-status"></div>
+      <pre id="orderdetail-delete-result"></pre>
+    </div>
+
       <div class="card">
         <div class="tag">PUT /orders/guest/{id}</div>
         <h2>Update Guest Details</h2>
@@ -468,10 +546,14 @@
         <div class="tag">POST /reviews</div>
         <h2>Create Review</h2>
         <form id="review-create-form">
-          <label>User ID</label>
-          <input name="user_id" type="number" min="1" required />
-          <label>Menu Item ID</label>
-          <input name="menu_item_id" type="number" min="1" required />
+          <label>Order (by guest name)</label>
+          <select name="order_id" id="review-order-select" required>
+            <option value="" disabled selected>Loading orders...</option>
+          </select>
+          <label>Menu Item (optional fallback)</label>
+          <select name="menu_item_id" id="review-menu-select">
+            <option value="">(Auto from order items)</option>
+          </select>
           <label>Rating (1-5)</label>
           <input name="rating" type="number" min="1" max="5" required />
           <label>Comment (optional)</label>
@@ -638,7 +720,8 @@
 
   <script>
     const API_BASE = "http://localhost:8000";
-    const menuSelectIds = ["guest-menu-select"];
+    const menuSelectIds = ["guest-menu-select", "review-menu-select"];
+    const orderSelectIds = ["review-order-select"];
 
     // Smooth scroll for primary actions
     document.querySelectorAll(".action-button").forEach((btn) => {
@@ -661,7 +744,8 @@
           statusEl.className = "status";
           resultEl.textContent = "";
 
-          const { url, options, transform, skip } = buildRequest(new FormData(form));
+          const built = await buildRequest(new FormData(form));
+          const { url, options, transform, skip } = built || {};
           if (skip) {
             statusEl.textContent = "Error";
             statusEl.className = "status err";
@@ -855,6 +939,16 @@
       }
     );
 
+    handleSubmit(
+      "notification-list-form",
+      "notification-list-status",
+      "notification-list-result",
+      () => ({
+        url: `${API_BASE}/notifications`,
+        options: { method: "GET" },
+      })
+    );
+
     // Populate menu dropdowns from API
     const populateMenu = async () => {
       try {
@@ -889,6 +983,48 @@
       }
     };
     populateMenu();
+
+    // Populate order dropdowns from API
+    const populateOrders = async () => {
+      try {
+        const resp = await fetch(`${API_BASE}/orders`);
+        const data = await resp.json();
+        orderSelectIds.forEach((id) => {
+          const sel = document.getElementById(id);
+          if (!sel) return;
+          sel.innerHTML = "";
+          const placeholder = document.createElement("option");
+          placeholder.value = "";
+          placeholder.disabled = true;
+          placeholder.selected = true;
+          placeholder.textContent = "Select an order";
+          sel.appendChild(placeholder);
+          if (!resp.ok || !Array.isArray(data) || data.length === 0) {
+            const opt = document.createElement("option");
+            opt.disabled = true;
+            opt.textContent = "Orders unavailable";
+            sel.appendChild(opt);
+            return;
+          }
+          data.forEach((order) => {
+            const guestName = order.guest_name || null;
+            const label = guestName
+              ? `${guestName} (Order ${order.id})`
+              : `Order ${order.id}`;
+            const opt = document.createElement("option");
+            opt.value = order.id;
+            opt.textContent = label;
+            sel.appendChild(opt);
+          });
+        });
+      } catch (e) {
+        orderSelectIds.forEach((id) => {
+          const sel = document.getElementById(id);
+          if (sel) sel.innerHTML = `<option disabled selected>Order load failed</option>`;
+        });
+      }
+    };
+    populateOrders();
 
     handleSubmit("track-form", "track-status", "track-result", (fd) => {
       const tracking = encodeURIComponent(fd.get("tracking_number"));
@@ -1041,6 +1177,94 @@
       );
 
       handleSubmit(
+        "orderdetail-create-form",
+        "orderdetail-create-status",
+        "orderdetail-create-result",
+        (fd) => {
+          const payload = {
+            order_id: Number(fd.get("order_id")),
+            menu_item_id: Number(fd.get("menu_item_id")),
+            quantity: Number(fd.get("quantity")),
+          };
+          return {
+            url: `${API_BASE}/orderdetails`,
+            options: {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            },
+          };
+        }
+      );
+
+      handleSubmit(
+        "orderdetail-list-form",
+        "orderdetail-list-status",
+        "orderdetail-list-result",
+        () => ({
+          url: `${API_BASE}/orderdetails`,
+          options: { method: "GET" },
+        })
+      );
+
+      handleSubmit(
+        "orderdetail-get-form",
+        "orderdetail-get-status",
+        "orderdetail-get-result",
+        (fd) => {
+          const id = Number(fd.get("id"));
+          return {
+            url: `${API_BASE}/orderdetails/${id}`,
+            options: { method: "GET" },
+          };
+        }
+      );
+
+      handleSubmit(
+        "orderdetail-update-form",
+        "orderdetail-update-status",
+        "orderdetail-update-result",
+        (fd) => {
+          const id = Number(fd.get("id"));
+          const payload = {};
+          const orderId = fd.get("order_id");
+          const menuItemId = fd.get("menu_item_id");
+          const qty = fd.get("quantity");
+          if (orderId) payload.order_id = Number(orderId);
+          if (menuItemId) payload.menu_item_id = Number(menuItemId);
+          if (qty) payload.quantity = Number(qty);
+          if (Object.keys(payload).length === 0) {
+            return {
+              url: "",
+              options: {},
+              skip: "Provide order_id, menu_item_id, or quantity to update.",
+            };
+          }
+          return {
+            url: `${API_BASE}/orderdetails/${id}`,
+            options: {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            },
+          };
+        }
+      );
+
+      handleSubmit(
+        "orderdetail-delete-form",
+        "orderdetail-delete-status",
+        "orderdetail-delete-result",
+        (fd) => {
+          const id = Number(fd.get("id"));
+          return {
+            url: `${API_BASE}/orderdetails/${id}`,
+            options: { method: "DELETE" },
+          };
+        }
+      );
+
+      handleSubmit(
         "promo-create-form",
         "promo-create-status",
         "promo-create-result",
@@ -1175,12 +1399,47 @@
         "review-create-form",
         "review-create-status",
         "review-create-result",
-        (fd) => {
+        async (fd) => {
+          const orderIdRaw = fd.get("order_id");
+          const orderId = orderIdRaw ? Number(orderIdRaw) : null;
+          const rating = Number(fd.get("rating"));
+          const comment = fd.get("comment") || null;
+          let menuId = fd.get("menu_item_id")
+            ? Number(fd.get("menu_item_id"))
+            : null;
+
+          if (!orderId) {
+            return { url: "", options: {}, skip: "Select an order first." };
+          }
+
+          const orderResp = await fetch(`${API_BASE}/orders/${orderId}`);
+          if (!orderResp.ok) {
+            return {
+              url: "",
+              options: {},
+              skip: `Order ${orderId} not found.`,
+            };
+          }
+          const orderData = await orderResp.json();
+          const detailMenuId =
+            orderData?.order_details?.[0]?.menu_item_id ?? null;
+          if (!menuId && detailMenuId) {
+            menuId = detailMenuId;
+          }
+
+          if (!menuId) {
+            return {
+              url: "",
+              options: {},
+              skip: "No menu item found for this order; select one manually.",
+            };
+          }
+
           const payload = {
-            user_id: Number(fd.get("user_id")),
-            menu_item_id: Number(fd.get("menu_item_id")),
-            rating: Number(fd.get("rating")),
-            comment: fd.get("comment") || null,
+            order_id: orderId,
+            menu_item_id: menuId,
+            rating,
+            comment,
           };
           return {
             url: `${API_BASE}/reviews`,

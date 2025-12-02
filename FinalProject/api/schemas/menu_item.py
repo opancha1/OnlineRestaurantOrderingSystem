@@ -7,7 +7,7 @@ class MenuItemBase(BaseModel):
     price: float
     category: str | None = None
     calories: int | None = None
-    stock: int | None = 0
+    stock: int | None = None
 
 
 class MenuItemCreate(MenuItemBase):

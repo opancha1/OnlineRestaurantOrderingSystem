@@ -7,7 +7,7 @@ class ReviewBase(BaseModel):
 
 
 class ReviewCreate(ReviewBase):
-    user_id: int
+    order_id: int | None = None
     menu_item_id: int
 
 
@@ -18,7 +18,7 @@ class ReviewUpdate(BaseModel):
 
 class ReviewResponse(ReviewBase):
     id: int
-    user_id: int
+    order_id: int | None
     menu_item_id: int
 
     class Config:

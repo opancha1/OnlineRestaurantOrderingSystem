@@ -15,4 +15,3 @@ class User(Base):
     role = Column(String(50), nullable=False)  # 'customer', 'staff', 'admin'
 
     orders = relationship("Order", back_populates="user")
-    reviews = relationship("Review", back_populates="user")
